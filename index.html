@@ -191,7 +191,7 @@
       padding: 4px;
     }
 
-    .cal-weekdays span:first-child { color: var(--red); }
+    .cal-weekdays span:last-child { color: var(--red); }
 
     .cal-grid {
       display: grid;
@@ -402,7 +402,7 @@
     <button class="cal-nav" id="nextMonth">▶</button>
   </div>
   <div class="cal-weekdays">
-    <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+    <span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span><span>일</span>
   </div>
   <div class="cal-grid" id="calGrid"></div>
 </div>
@@ -546,7 +546,8 @@ function renderCalendar() {
 
   document.getElementById('calTitle').textContent = year + '\uB144 ' + (month + 1) + '\uC6D4';
 
-  var firstDay = new Date(year, month, 1).getDay();
+  var firstDow = new Date(year, month, 1).getDay();
+  var firstDay = firstDow === 0 ? 6 : firstDow - 1; // 월=0, 화=1, ..., 일=6
   var daysInMonth = new Date(year, month + 1, 0).getDate();
 
   var html = '';
@@ -640,7 +641,8 @@ function getCompletedWeeks(year, month, today) {
     var dateStr = formatDate(dateObj);
     currentWeek.push(dateStr);
 
-    if (dateObj.getDay() === 6 || d === daysInMonth) {
+    // 월~일 기준: 일요일(0)이 주의 마지막 날
+    if (dateObj.getDay() === 0 || d === daysInMonth) {
       var lastDayOfWeek = new Date(year, month, d);
       if (lastDayOfWeek <= today && lastDayOfWeek >= startDate) {
         weeks.push(currentWeek.slice());
@@ -657,11 +659,13 @@ function getCompletedWeeks(year, month, today) {
 function renderWeekProgress() {
   var today = new Date();
   var dow = today.getDay();
+  // 월~일 기준: 월요일=0일전~6일전
+  var daysSinceMonday = dow === 0 ? 6 : dow - 1;
   var startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - dow);
+  startOfWeek.setDate(today.getDate() - daysSinceMonday);
 
   var bc = 0, hc = 0;
-  for (var i = 0; i <= dow; i++) {
+  for (var i = 0; i <= daysSinceMonday; i++) {
     var d = new Date(startOfWeek);
     d.setDate(startOfWeek.getDate() + i);
     var dayData = checkinData[formatDate(d)] || {};
