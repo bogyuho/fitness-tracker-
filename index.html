@@ -8,15 +8,18 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg: #0a0a0f;
-      --card: #16162a;
-      --card2: #1e1e3a;
-      --accent: #e94560;
-      --green: #00c853;
-      --red: #ff1744;
-      --yellow: #ffd600;
-      --text: #f0f0f0;
-      --text2: #888;
+      /* Apple Dark Mode 기반 배경 */
+      --bg: #1C1C1E;
+      --card: #2C2C2E;
+      --card2: #3A3A3C;
+      /* Tailwind 기반 강조색 */
+      --accent: #6366F1;
+      --green: #10B981;
+      --red: #F43F5E;
+      --yellow: #FBBF24;
+      /* Apple 기반 텍스트 */
+      --text: #F5F5F7;
+      --text2: #98989D;
       --radius: 20px;
       --gap: 20px;
     }
@@ -59,8 +62,8 @@
 
     .checkin-card:active { transform: scale(0.95); }
 
-    .checkin-card.bogyu { background: linear-gradient(135deg, #667eea, #764ba2); }
-    .checkin-card.hyerim { background: linear-gradient(135deg, #f093fb, #f5576c); }
+    .checkin-card.bogyu { background: linear-gradient(135deg, #6366F1, #4F46E5); }
+    .checkin-card.hyerim { background: linear-gradient(135deg, #FB7185, #F43F5E); }
 
     .checkin-card .card-name {
       font-size: 16px;
@@ -106,7 +109,7 @@
 
     .progress-bar {
       height: 6px;
-      background: #252545;
+      background: var(--card2);
       border-radius: 3px;
       overflow: hidden;
     }
@@ -117,8 +120,8 @@
       transition: width 0.3s;
     }
 
-    .fill.bogyu { background: linear-gradient(90deg, #667eea, #764ba2); }
-    .fill.hyerim { background: linear-gradient(90deg, #f093fb, #f5576c); }
+    .fill.bogyu { background: linear-gradient(90deg, #818CF8, #6366F1); }
+    .fill.hyerim { background: linear-gradient(90deg, #FDA4AF, #FB7185); }
 
     /* 벌금 카드 */
     .penalty-card {
@@ -153,7 +156,7 @@
     .penalty-total {
       margin-top: 12px;
       padding-top: 12px;
-      border-top: 1px solid #252545;
+      border-top: 1px solid var(--card2);
       text-align: center;
       font-size: 15px;
     }
@@ -241,8 +244,8 @@
       border-radius: 50%;
     }
 
-    .dot.bogyu { background: #764ba2; }
-    .dot.hyerim { background: #f5576c; }
+    .dot.bogyu { background: #818CF8; }
+    .dot.hyerim { background: #FB7185; }
 
     /* 모달 */
     .modal-overlay {
@@ -339,8 +342,8 @@
       font-weight: 600;
     }
 
-    .badge.bogyu { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
-    .badge.hyerim { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; }
+    .badge.bogyu { background: linear-gradient(135deg, #6366F1, #4F46E5); color: white; }
+    .badge.hyerim { background: linear-gradient(135deg, #FB7185, #F43F5E); color: white; }
 
     /* 에러 메시지 */
     #debugMsg {
