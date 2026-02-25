@@ -566,7 +566,7 @@ const PENALTY_PER_MISS = 100000; // 1회 빠질 때 10만원
 // ============================================
 // 초기화
 // ============================================
-let supabase;
+let supabaseClient;
 let currentUser = null;
 let currentMonth = new Date();
 let checkinData = {};
@@ -587,7 +587,7 @@ function initSupabase() {
     return false;
   }
   try {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     return true;
   } catch(e) {
     showDebug('Supabase 연결 오류: ' + e.message);
@@ -640,7 +640,7 @@ async function loadData() {
   const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
   const endDate = `${year}-${String(month + 1).padStart(2, '0')}-${new Date(year, month + 1, 0).getDate()}`;
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from('checkins')
     .select('*')
     .gte('checked_date', startDate)
@@ -895,19 +895,19 @@ async function submitCheckin() {
     const todayStr = formatDate(new Date());
     const fileName = `${currentUser}/${todayStr}_${Date.now()}.jpg`;
 
-    const { data: uploadData, error: uploadErr } = await supabase.storage
+    const { data: uploadData, error: uploadErr } = await supabaseClient.storage
       .from('photos')
       .upload(fileName, selectedFile, { contentType: selectedFile.type });
 
     if (uploadErr) throw uploadErr;
 
     // 2. 공개 URL 가져오기
-    const { data: urlData } = supabase.storage
+    const { data: urlData } = supabaseClient.storage
       .from('photos')
       .getPublicUrl(fileName);
 
     // 3. 체크인 레코드 저장
-    const { error: insertErr } = await supabase
+    const { error: insertErr } = await supabaseClient
       .from('checkins')
       .insert({
         user_name: currentUser,
