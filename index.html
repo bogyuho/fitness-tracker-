@@ -562,6 +562,7 @@ const SUPABASE_KEY = 'sb_publishable_HSZEGMrG-N4I6sdkSRQFSw_W4r3f3R0';
 
 const WEEKLY_TARGET = 4;       // 주 4회
 const PENALTY_PER_MISS = 100000; // 1회 빠질 때 10만원
+const APP_START_DATE = '2026-02-25'; // 앱 시작일 (이전 주는 벌금 계산 안 함)
 
 // ============================================
 // 초기화
@@ -789,6 +790,7 @@ function getCompletedWeeks(year, month, today) {
   const weeks = [];
   let currentWeek = [];
   const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const startDate = new Date(APP_START_DATE + 'T00:00:00');
 
   for (let d = 1; d <= daysInMonth; d++) {
     const dateObj = new Date(year, month, d);
@@ -799,9 +801,10 @@ function getCompletedWeeks(year, month, today) {
 
     // 토요일이거나 마지막 날
     if (dayOfWeek === 6 || d === daysInMonth) {
-      // 완료된 주만 (주의 마지막 날이 오늘 이전이어야 함)
+      // 완료된 주만 (주의 마지막 날이 오늘 이전이어야 하고, 앱 시작일 이후여야 함)
       const lastDayOfWeek = new Date(year, month, d);
-      if (lastDayOfWeek <= today) {
+      const firstDayOfWeek = new Date(year, month, d - currentWeek.length + 1);
+      if (lastDayOfWeek <= today && lastDayOfWeek >= startDate) {
         weeks.push([...currentWeek]);
       }
       currentWeek = [];
@@ -893,7 +896,8 @@ async function submitCheckin() {
   try {
     // 1. 사진 업로드
     const todayStr = formatDate(new Date());
-    const fileName = `${currentUser}/${todayStr}_${Date.now()}.jpg`;
+    const safeUser = currentUser === '\uBCF4\uADDC' ? 'bogyu' : 'hyerim';
+    const fileName = `${safeUser}/${todayStr}_${Date.now()}.jpg`;
 
     const { data: uploadData, error: uploadErr } = await supabaseClient.storage
       .from('photos')
@@ -922,7 +926,7 @@ async function submitCheckin() {
 
   } catch (err) {
     console.error('Submit error:', err);
-    alert('오류가 발생했습니다: ' + err.message);
+    showDebug('업로드 오류: ' + (err.message || JSON.stringify(err)));
     btn.disabled = false;
     btn.textContent = '인증하기';
   }
