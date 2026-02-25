@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>헬스 인증 트래커</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0f0f0f;
+      --card: #1a1a2e;
+      --accent: #e94560;
+      --accent2: #0f3460;
+      --green: #00c853;
+      --red: #ff1744;
+      --yellow: #ffd600;
+      --text: #eee;
+      --text2: #999;
+      --radius: 16px;
+    }
+
+    body {
+      font-family: -apple-system, 'Pretendard', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      padding-bottom: 100px;
+    }
+
+    /* === 로그인 화면 === */
+    .login-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100dvh;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .login-screen h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .login-screen p {
+      color: var(--text2);
+      margin-bottom: 20px;
+    }
+
+    .login-btn {
+      width: 100%;
+      max-width: 300px;
+      padding: 18px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .login-btn:active { transform: scale(0.96); }
+
+    .login-btn.bogyu {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    .login-btn.hyerim {
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      color: white;
+    }
+
+    /* === 메인 앱 === */
+    .app { display: none; }
+    .app.active { display: block; }
+
+    /* 헤더 */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      background: var(--card);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header h2 { font-size: 18px; }
+
+    .header .user-badge {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .user-badge.bogyu { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .user-badge.hyerim { background: linear-gradient(135deg, #f093fb, #f5576c); }
+
+    .logout-btn {
+      background: none;
+      border: 1px solid #555;
+      color: var(--text2);
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* 벌금 카드 */
+    .penalty-card {
+      margin: 16px;
+      padding: 20px;
+      background: var(--card);
+      border-radius: var(--radius);
+    }
+
+    .penalty-card h3 {
+      font-size: 14px;
+      color: var(--text2);
+      margin-bottom: 12px;
+    }
+
+    .penalty-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+    }
+
+    .penalty-row .name { font-size: 15px; }
+    .penalty-row .count { font-size: 14px; color: var(--text2); }
+
+    .penalty-row .amount {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .penalty-row .amount.red { color: var(--red); }
+    .penalty-row .amount.green { color: var(--green); }
+
+    .penalty-total {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #333;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .penalty-total strong {
+      font-size: 22px;
+      color: var(--yellow);
+    }
+
+    /* 달력 */
+    .calendar-section {
+      margin: 16px;
+    }
+
+    .cal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .cal-header h3 { font-size: 18px; }
+
+    .cal-nav {
+      background: var(--card);
+      border: none;
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .cal-weekdays span {
+      font-size: 12px;
+      color: var(--text2);
+      padding: 4px;
+    }
+
+    .cal-weekdays span:first-child { color: var(--red); }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .cal-day {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      font-size: 14px;
+      cursor: pointer;
+      position: relative;
+      background: var(--card);
+      transition: transform 0.1s;
+    }
+
+    .cal-day:active { transform: scale(0.9); }
+    .cal-day.empty { background: transparent; cursor: default; }
+    .cal-day.today { border: 2px solid var(--accent); }
+    .cal-day.future { opacity: 0.3; cursor: default; }
+
+    .cal-day .dots {
+      display: flex;
+      gap: 3px;
+      margin-top: 2px;
+    }
+
+    .cal-day .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .dot.bogyu { background: #764ba2; }
+    .dot.hyerim { background: #f5576c; }
+    .dot.miss { background: var(--red); opacity: 0.5; }
+
+    /* 인증 버튼 */
+    .checkin-btn-wrap {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+    }
+
+    .checkin-btn {
+      padding: 16px 40px;
+      border: none;
+      border-radius: 50px;
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(233, 69, 96, 0.4);
+      transition: transform 0.1s;
+    }
+
+    .checkin-btn:active { transform: scale(0.95); }
+    .checkin-btn.bogyu { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .checkin-btn.hyerim { background: linear-gradient(135deg, #f093fb, #f5576c); }
+    .checkin-btn:disabled {
+      background: #333 !important;
+      box-shadow: none;
+      color: #666;
+    }
+
+    /* 모달 */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 300;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 24px;
+      width: 100%;
+      max-width: 400px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal h3 {
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+
+    .photo-upload-area {
+      border: 2px dashed #444;
+      border-radius: var(--radius);
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .photo-upload-area:hover { border-color: var(--accent); }
+
+    .photo-upload-area img {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 12px;
+    }
+
+    .photo-upload-area p {
+      color: var(--text2);
+      font-size: 14px;
+    }
+
+    .modal-btns {
+      display: flex;
+      gap: 10px;
+    }
+
+    .modal-btns button {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-cancel {
+      background: #333;
+      color: var(--text);
+    }
+
+    .btn-submit {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-submit:disabled {
+      background: #555;
+      color: #888;
+    }
+
+    /* 사진 보기 모달 */
+    .photo-view-modal .photos-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .photo-card {
+      background: #111;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .photo-card img {
+      width: 100%;
+      max-height: 250px;
+      object-fit: cover;
+    }
+
+    .photo-card .info {
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .photo-card .info .badge {
+      padding: 4px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* 주간 진행률 바 */
+    .week-progress {
+      margin: 0 16px 8px;
+      padding: 16px;
+      background: var(--card);
+      border-radius: var(--radius);
+    }
+
+    .week-progress h3 {
+      font-size: 14px;
+      color: var(--text2);
+      margin-bottom: 10px;
+    }
+
+    .progress-person {
+      margin-bottom: 10px;
+    }
+
+    .progress-person .label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: #333;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar .fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s;
+    }
+
+    .fill.bogyu { background: linear-gradient(90deg, #667eea, #764ba2); }
+    .fill.hyerim { background: linear-gradient(90deg, #f093fb, #f5576c); }
+
+    /* 로딩 */
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text2);
+    }
+
+    .spinner {
+      width: 30px;
+      height: 30px;
+      border: 3px solid #333;
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<!-- ===== 로그인 화면 ===== -->
+<div class="login-screen" id="loginScreen">
+  <h1>💪 헬스 트래커</h1>
+  <p>누구세요?</p>
+  <button class="login-btn bogyu" onclick="login('보규')">보규</button>
+  <button class="login-btn hyerim" onclick="login('혜림')">혜림</button>
+</div>
+
+<!-- ===== 메인 앱 ===== -->
+<div class="app" id="mainApp">
+  <!-- 헤더 -->
+  <div class="header">
+    <h2>💪 헬스 트래커</h2>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span class="user-badge" id="userBadge"></span>
+      <button class="logout-btn" onclick="logout()">변경</button>
+    </div>
+  </div>
+
+  <!-- 이번주 진행률 -->
+  <div class="week-progress" id="weekProgress">
+    <h3>📊 이번 주 진행률</h3>
+    <div class="progress-person">
+      <div class="label">
+        <span>보규 (유산소 30분)</span>
+        <span id="bogyuWeekCount">0/4</span>
+      </div>
+      <div class="progress-bar"><div class="fill bogyu" id="bogyuBar" style="width:0%"></div></div>
+    </div>
+    <div class="progress-person">
+      <div class="label">
+        <span>혜림 (유산소 20분)</span>
+        <span id="hyerimWeekCount">0/4</span>
+      </div>
+      <div class="progress-bar"><div class="fill hyerim" id="hyerimBar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- 벌금 카드 -->
+  <div class="penalty-card" id="penaltyCard">
+    <h3>💰 이번 달 벌금 현황</h3>
+    <div class="penalty-row">
+      <div>
+        <span class="name">보규</span>
+        <span class="count" id="bogyuMiss"></span>
+      </div>
+      <span class="amount" id="bogyuPenalty"></span>
+    </div>
+    <div class="penalty-row">
+      <div>
+        <span class="name">혜림</span>
+        <span class="count" id="hyerimMiss"></span>
+      </div>
+      <span class="amount" id="hyerimPenalty"></span>
+    </div>
+    <div class="penalty-total" id="penaltyTotal"></div>
+  </div>
+
+  <!-- 달력 -->
+  <div class="calendar-section">
+    <div class="cal-header">
+      <button class="cal-nav" onclick="changeMonth(-1)">◀</button>
+      <h3 id="calTitle"></h3>
+      <button class="cal-nav" onclick="changeMonth(1)">▶</button>
+    </div>
+    <div class="cal-weekdays">
+      <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+  </div>
+
+  <!-- 인증 버튼 -->
+  <div class="checkin-btn-wrap">
+    <button class="checkin-btn" id="checkinBtn" onclick="openCheckinModal()">
+      📸 오늘 인증하기
+    </button>
+  </div>
+</div>
+
+<!-- ===== 인증 모달 ===== -->
+<div class="modal-overlay" id="checkinModal">
+  <div class="modal">
+    <h3>📸 오늘 운동 인증</h3>
+    <div class="photo-upload-area" id="uploadArea" onclick="document.getElementById('photoInput').click()">
+      <p>📷 사진을 촬영하거나 선택하세요</p>
+    </div>
+    <input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none" onchange="previewPhoto(this)">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeCheckinModal()">취소</button>
+      <button class="btn-submit" id="submitBtn" disabled onclick="submitCheckin()">인증하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 사진 보기 모달 ===== -->
+<div class="modal-overlay photo-view-modal" id="photoViewModal">
+  <div class="modal">
+    <h3 id="photoViewTitle"></h3>
+    <div class="photos-grid" id="photosGrid"></div>
+    <div style="margin-top:16px">
+      <button class="btn-cancel" style="width:100%;padding:14px;border-radius:12px" onclick="closePhotoView()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Supabase SDK ===== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<script>
+// ============================================
+// 설정 - Supabase 프로젝트 정보 입력
+// ============================================
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';       // 예: https://xxxxx.supabase.co
+const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';  // 예: eyJhbGci...
+
+const WEEKLY_TARGET = 4;       // 주 4회
+const PENALTY_PER_MISS = 100000; // 1회 빠질 때 10만원
+
+// ============================================
+// 초기화
+// ============================================
+let supabase;
+let currentUser = null;
+let currentMonth = new Date();
+let checkinData = {};
+let selectedFile = null;
+
+function initSupabase() {
+  if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
+    alert('⚠️ supabase 설정이 필요합니다!\n\nindex.html 파일을 열어서\nSUPABASE_URL과 SUPABASE_KEY를\n입력해주세요.');
+    return false;
+  }
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  return true;
+}
+
+// ============================================
+// 로그인 / 로그아웃
+// ============================================
+function login(name) {
+  if (!initSupabase()) return;
+  currentUser = name;
+  localStorage.setItem('fitness_user', name);
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('mainApp').classList.add('active');
+
+  const badge = document.getElementById('userBadge');
+  badge.textContent = name;
+  badge.className = 'user-badge ' + (name === '보규' ? 'bogyu' : 'hyerim');
+
+  const btn = document.getElementById('checkinBtn');
+  btn.className = 'checkin-btn ' + (name === '보규' ? 'bogyu' : 'hyerim');
+
+  loadData();
+}
+
+function logout() {
+  currentUser = null;
+  localStorage.removeItem('fitness_user');
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('mainApp').classList.remove('active');
+}
+
+// 자동 로그인
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('fitness_user');
+  if (saved) login(saved);
+});
+
+// ============================================
+// 데이터 로드
+// ============================================
+async function loadData() {
+  const year = currentMonth.getFullYear();
+  const month = currentMonth.getMonth();
+  const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+  const endDate = `${year}-${String(month + 1).padStart(2, '0')}-${new Date(year, month + 1, 0).getDate()}`;
+
+  const { data, error } = await supabase
+    .from('checkins')
+    .select('*')
+    .gte('checked_date', startDate)
+    .lte('checked_date', endDate)
+    .order('checked_date');
+
+  if (error) {
+    console.error('Load error:', error);
+    return;
+  }
+
+  // 날짜별로 정리
+  checkinData = {};
+  (data || []).forEach(row => {
+    if (!checkinData[row.checked_date]) {
+      checkinData[row.checked_date] = {};
+    }
+    checkinData[row.checked_date][row.user_name] = row;
+  });
+
+  renderCalendar();
+  renderPenalty();
+  renderWeekProgress();
+  updateCheckinBtn();
+}
+
+// ============================================
+// 달력 렌더링
+// ============================================
+function renderCalendar() {
+  const year = currentMonth.getFullYear();
+  const month = currentMonth.getMonth();
+  const today = new Date();
+  const todayStr = formatDate(today);
+
+  document.getElementById('calTitle').textContent =
+    `${year}년 ${month + 1}월`;
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  let html = '';
+
+  // 빈 칸
+  for (let i = 0; i < firstDay; i++) {
+    html += '<div class="cal-day empty"></div>';
+  }
+
+  // 날짜
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const dateObj = new Date(year, month, d);
+    const isToday = dateStr === todayStr;
+    const isFuture = dateObj > today;
+
+    const dayData = checkinData[dateStr] || {};
+    const bogyuDone = !!dayData['보규'];
+    const hyerimDone = !!dayData['혜림'];
+
+    let dots = '';
+    if (!isFuture) {
+      if (bogyuDone) dots += '<div class="dot bogyu"></div>';
+      if (hyerimDone) dots += '<div class="dot hyerim"></div>';
+    }
+
+    const classes = ['cal-day'];
+    if (isToday) classes.push('today');
+    if (isFuture) classes.push('future');
+
+    html += `
+      <div class="${classes.join(' ')}" ${!isFuture ? `onclick="viewDay('${dateStr}')"` : ''}>
+        <span>${d}</span>
+        <div class="dots">${dots}</div>
+      </div>
+    `;
+  }
+
+  document.getElementById('calGrid').innerHTML = html;
+}
+
+function changeMonth(delta) {
+  currentMonth.setMonth(currentMonth.getMonth() + delta);
+  loadData();
+}
+
+// ============================================
+// 벌금 계산
+// ============================================
+function renderPenalty() {
+  const year = currentMonth.getFullYear();
+  const month = currentMonth.getMonth();
+  const today = new Date();
+
+  // 이번 달의 완료된 주 수 계산
+  let bogyuMisses = 0;
+  let hyerimMisses = 0;
+
+  // 주별로 계산
+  const weeks = getCompletedWeeks(year, month, today);
+
+  weeks.forEach(week => {
+    let bogyuCount = 0;
+    let hyerimCount = 0;
+
+    week.forEach(dateStr => {
+      const dayData = checkinData[dateStr] || {};
+      if (dayData['보규']) bogyuCount++;
+      if (dayData['혜림']) hyerimCount++;
+    });
+
+    const bogyuShort = Math.max(0, WEEKLY_TARGET - bogyuCount);
+    const hyerimShort = Math.max(0, WEEKLY_TARGET - hyerimCount);
+    bogyuMisses += bogyuShort;
+    hyerimMisses += hyerimShort;
+  });
+
+  const bogyuPenalty = bogyuMisses * PENALTY_PER_MISS;
+  const hyerimPenalty = hyerimMisses * PENALTY_PER_MISS;
+
+  document.getElementById('bogyuMiss').textContent =
+    bogyuMisses > 0 ? `(${bogyuMisses}회 미달)` : '(완벽!)';
+  document.getElementById('hyerimMiss').textContent =
+    hyerimMisses > 0 ? `(${hyerimMisses}회 미달)` : '(완벽!)';
+
+  const bogyuEl = document.getElementById('bogyuPenalty');
+  bogyuEl.textContent = formatMoney(bogyuPenalty);
+  bogyuEl.className = 'amount ' + (bogyuPenalty > 0 ? 'red' : 'green');
+
+  const hyerimEl = document.getElementById('hyerimPenalty');
+  hyerimEl.textContent = formatMoney(hyerimPenalty);
+  hyerimEl.className = 'amount ' + (hyerimPenalty > 0 ? 'red' : 'green');
+
+  // 정산
+  const totalEl = document.getElementById('penaltyTotal');
+  const diff = bogyuPenalty - hyerimPenalty;
+  if (diff > 0) {
+    totalEl.innerHTML = `정산: <strong>보규 → 혜림 ${formatMoney(diff)}</strong>`;
+  } else if (diff < 0) {
+    totalEl.innerHTML = `정산: <strong>혜림 → 보규 ${formatMoney(-diff)}</strong>`;
+  } else {
+    totalEl.innerHTML = `<strong>동점! 정산 없음 👏</strong>`;
+  }
+}
+
+function getCompletedWeeks(year, month, today) {
+  const weeks = [];
+  let currentWeek = [];
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateObj = new Date(year, month, d);
+    const dateStr = formatDate(dateObj);
+    const dayOfWeek = dateObj.getDay();
+
+    currentWeek.push(dateStr);
+
+    // 토요일이거나 마지막 날
+    if (dayOfWeek === 6 || d === daysInMonth) {
+      // 완료된 주만 (주의 마지막 날이 오늘 이전이어야 함)
+      const lastDayOfWeek = new Date(year, month, d);
+      if (lastDayOfWeek <= today) {
+        weeks.push([...currentWeek]);
+      }
+      currentWeek = [];
+    }
+  }
+
+  return weeks;
+}
+
+// ============================================
+// 이번 주 진행률
+// ============================================
+function renderWeekProgress() {
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0=일 ~ 6=토
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - dayOfWeek);
+
+  let bogyuCount = 0;
+  let hyerimCount = 0;
+
+  for (let i = 0; i <= dayOfWeek; i++) {
+    const d = new Date(startOfWeek);
+    d.setDate(startOfWeek.getDate() + i);
+    const dateStr = formatDate(d);
+    const dayData = checkinData[dateStr] || {};
+    if (dayData['보규']) bogyuCount++;
+    if (dayData['혜림']) hyerimCount++;
+  }
+
+  document.getElementById('bogyuWeekCount').textContent = `${bogyuCount}/${WEEKLY_TARGET}`;
+  document.getElementById('hyerimWeekCount').textContent = `${hyerimCount}/${WEEKLY_TARGET}`;
+  document.getElementById('bogyuBar').style.width = `${Math.min(100, (bogyuCount / WEEKLY_TARGET) * 100)}%`;
+  document.getElementById('hyerimBar').style.width = `${Math.min(100, (hyerimCount / WEEKLY_TARGET) * 100)}%`;
+}
+
+// ============================================
+// 인증 버튼 상태
+// ============================================
+function updateCheckinBtn() {
+  const btn = document.getElementById('checkinBtn');
+  const todayStr = formatDate(new Date());
+  const todayData = checkinData[todayStr] || {};
+
+  if (todayData[currentUser]) {
+    btn.textContent = '✅ 오늘 인증 완료!';
+    btn.disabled = true;
+  } else {
+    btn.textContent = '📸 오늘 인증하기';
+    btn.disabled = false;
+  }
+}
+
+// ============================================
+// 인증 모달
+// ============================================
+function openCheckinModal() {
+  selectedFile = null;
+  document.getElementById('photoInput').value = '';
+  document.getElementById('uploadArea').innerHTML = '<p>📷 사진을 촬영하거나 선택하세요</p>';
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('checkinModal').classList.add('active');
+}
+
+function closeCheckinModal() {
+  document.getElementById('checkinModal').classList.remove('active');
+}
+
+function previewPhoto(input) {
+  if (input.files && input.files[0]) {
+    selectedFile = input.files[0];
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('uploadArea').innerHTML =
+        `<img src="${e.target.result}" alt="미리보기">`;
+      document.getElementById('submitBtn').disabled = false;
+    };
+    reader.readAsDataURL(selectedFile);
+  }
+}
+
+async function submitCheckin() {
+  if (!selectedFile) return;
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '업로드 중...';
+
+  try {
+    // 1. 사진 업로드
+    const todayStr = formatDate(new Date());
+    const fileName = `${currentUser}/${todayStr}_${Date.now()}.jpg`;
+
+    const { data: uploadData, error: uploadErr } = await supabase.storage
+      .from('photos')
+      .upload(fileName, selectedFile, { contentType: selectedFile.type });
+
+    if (uploadErr) throw uploadErr;
+
+    // 2. 공개 URL 가져오기
+    const { data: urlData } = supabase.storage
+      .from('photos')
+      .getPublicUrl(fileName);
+
+    // 3. 체크인 레코드 저장
+    const { error: insertErr } = await supabase
+      .from('checkins')
+      .insert({
+        user_name: currentUser,
+        photo_url: urlData.publicUrl,
+        checked_date: todayStr
+      });
+
+    if (insertErr) throw insertErr;
+
+    closeCheckinModal();
+    await loadData();
+
+  } catch (err) {
+    console.error('Submit error:', err);
+    alert('오류가 발생했습니다: ' + err.message);
+    btn.disabled = false;
+    btn.textContent = '인증하기';
+  }
+}
+
+// ============================================
+// 날짜 클릭 → 사진 보기
+// ============================================
+function viewDay(dateStr) {
+  const dayData = checkinData[dateStr] || {};
+  const [y, m, d] = dateStr.split('-');
+
+  document.getElementById('photoViewTitle').textContent =
+    `${parseInt(m)}월 ${parseInt(d)}일 인증`;
+
+  let html = '';
+
+  ['보규', '혜림'].forEach(name => {
+    if (dayData[name]) {
+      const colorClass = name === '보규' ? 'bogyu' : 'hyerim';
+      html += `
+        <div class="photo-card">
+          <img src="${dayData[name].photo_url}" alt="${name} 인증" loading="lazy">
+          <div class="info">
+            <span class="badge ${colorClass}">${name}</span>
+            <span style="color:#999;font-size:12px">${new Date(dayData[name].created_at).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'})}</span>
+          </div>
+        </div>
+      `;
+    }
+  });
+
+  if (!html) {
+    html = '<p style="text-align:center;color:#999;padding:20px">이 날은 인증 기록이 없습니다</p>';
+  }
+
+  document.getElementById('photosGrid').innerHTML = html;
+  document.getElementById('photoViewModal').classList.add('active');
+}
+
+function closePhotoView() {
+  document.getElementById('photoViewModal').classList.remove('active');
+}
+
+// ============================================
+// 유틸
+// ============================================
+function formatDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function formatMoney(amount) {
+  if (amount === 0) return '0원';
+  return (amount / 10000) + '만원';
+}
+</script>
+
+</body>
+</html>
