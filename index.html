@@ -448,8 +448,8 @@
 <div class="login-screen" id="loginScreen">
   <h1>💪 헬스 트래커</h1>
   <p>누구세요?</p>
-  <button class="login-btn bogyu" onclick="login('보규')">보규</button>
-  <button class="login-btn hyerim" onclick="login('혜림')">혜림</button>
+  <button class="login-btn bogyu" id="btnBogyu">보규</button>
+  <button class="login-btn hyerim" id="btnHyerim">혜림</button>
 </div>
 
 <!-- ===== 메인 앱 ===== -->
@@ -612,8 +612,10 @@ function logout() {
   document.getElementById('mainApp').classList.remove('active');
 }
 
-// 자동 로그인
+// 자동 로그인 + 버튼 이벤트
 window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('btnBogyu').addEventListener('click', () => login('\uBCF4\uADDC'));
+  document.getElementById('btnHyerim').addEventListener('click', () => login('\uD61C\uB9BC'));
   const saved = localStorage.getItem('fitness_user');
   if (saved) login(saved);
 });
