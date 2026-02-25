@@ -847,9 +847,12 @@ function viewDay(dateStr) {
   var html = '';
   ['\uBCF4\uADDC', '\uD61C\uB9BC'].forEach(function(name) {
     if (dayData[name]) {
+      var photoUrl = dayData[name].photo_url;
       var cls = name === '\uBCF4\uADDC' ? 'bogyu' : 'hyerim';
       html += '<div class="photo-card">';
-      html += '<img src="' + dayData[name].photo_url + '" alt="' + name + '" loading="lazy">';
+      if (photoUrl && photoUrl !== 'none' && photoUrl !== '') {
+        html += '<img src="' + photoUrl + '" alt="' + name + '" loading="lazy">';
+      }
       html += '<div class="info">';
       html += '<span class="badge ' + cls + '">' + name + '</span>';
       html += '<span style="color:#999;font-size:12px">' + new Date(dayData[name].created_at).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'}) + '</span>';
