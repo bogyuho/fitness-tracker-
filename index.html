@@ -357,9 +357,35 @@
       padding: 0 16px;
       min-height: 20px;
     }
+
+    /* 외부 브라우저 안내 배너 */
+    .browser-banner {
+      display: none;
+      padding: 12px 20px;
+      background: var(--accent);
+      color: white;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .browser-banner span {
+      font-size: 12px;
+      opacity: 0.85;
+      display: block;
+      margin-top: 4px;
+      font-weight: 400;
+    }
   </style>
 </head>
 <body>
+
+<!-- 외부 브라우저 안내 -->
+<div class="browser-banner" id="browserBanner">
+  Chrome으로 열기
+  <span>홈화면에 추가하면 앱처럼 사용할 수 있어요</span>
+</div>
 
 <!-- 헤더 -->
 <div class="header">💪 헬스 트래커</div>
@@ -473,6 +499,28 @@ var SUPABASE_KEY = 'sb_publishable_HSZEGMrG-N4I6sdkSRQFSw_W4r3f3R0';
 var WEEKLY_TARGET = 4;
 var PENALTY_PER_MISS = 100000;
 var APP_START_DATE = '2026-02-25';
+
+// ============================================
+// 인앱 브라우저 감지
+// ============================================
+(function() {
+  var ua = navigator.userAgent || '';
+  var isInApp = /KAKAOTALK|NAVER|Line|Instagram|FB|FBAN|FBAV/i.test(ua);
+  if (isInApp) {
+    var banner = document.getElementById('browserBanner');
+    banner.style.display = 'block';
+    banner.addEventListener('click', function() {
+      // Android intent로 Chrome 열기
+      var url = location.href;
+      if (/android/i.test(ua)) {
+        location.href = 'intent://' + url.replace(/https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
+      } else {
+        // iOS는 Safari로 복사 안내
+        window.open(url, '_blank');
+      }
+    });
+  }
+})();
 
 // ============================================
 // 초기화
