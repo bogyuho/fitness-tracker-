@@ -724,7 +724,8 @@ function getCompletedWeeks(year, month, today) {
     // 월~일 기준: 일요일(0)이 주의 마지막 날
     if (dateObj.getDay() === 0 || d === daysInMonth) {
       var lastDayOfWeek = new Date(year, month, d);
-      if (lastDayOfWeek <= today && lastDayOfWeek >= startDate) {
+      // 7일 미만인 불완전한 주는 벌금 계산에서 제외
+      if (currentWeek.length >= 7 && lastDayOfWeek <= today && lastDayOfWeek >= startDate) {
         weeks.push(currentWeek.slice());
       }
       currentWeek = [];
