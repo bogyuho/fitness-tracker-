@@ -450,6 +450,7 @@
   <p>누구세요?</p>
   <button class="login-btn bogyu" id="btnBogyu">보규</button>
   <button class="login-btn hyerim" id="btnHyerim">혜림</button>
+  <p id="debugMsg" style="color:#ff4444;margin-top:20px;font-size:14px"></p>
 </div>
 
 <!-- ===== 메인 앱 ===== -->
@@ -549,9 +550,6 @@
   </div>
 </div>
 
-<!-- ===== 테스트 ===== -->
-<script>document.body.style.background='red';document.title='JS작동함';</script>
-
 <!-- ===== Supabase SDK ===== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
@@ -574,16 +572,25 @@ let currentMonth = new Date();
 let checkinData = {};
 let selectedFile = null;
 
+function showDebug(msg) {
+  var el = document.getElementById('debugMsg');
+  if (el) el.textContent = msg;
+}
+
 function initSupabase() {
   if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
-    alert('⚠️ supabase 설정이 필요합니다!\n\nindex.html 파일을 열어서\nSUPABASE_URL과 SUPABASE_KEY를\n입력해주세요.');
+    showDebug('Supabase 설정이 필요합니다. URL과 KEY를 입력해주세요.');
+    return false;
+  }
+  if (!window.supabase) {
+    showDebug('Supabase SDK 로딩 실패. 인터넷 연결을 확인해주세요.');
     return false;
   }
   try {
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     return true;
   } catch(e) {
-    alert('Supabase 연결 오류: ' + e.message);
+    showDebug('Supabase 연결 오류: ' + e.message);
     return false;
   }
 }
@@ -592,6 +599,7 @@ function initSupabase() {
 // 로그인 / 로그아웃
 // ============================================
 function login(name) {
+  showDebug('로그인 시도: ' + name);
   if (!initSupabase()) return;
   currentUser = name;
   localStorage.setItem('fitness_user', name);
