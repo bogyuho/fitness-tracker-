@@ -8,15 +8,17 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg: #0f0f0f;
-      --card: #1a1a2e;
+      --bg: #0a0a0f;
+      --card: #16162a;
+      --card2: #1e1e3a;
       --accent: #e94560;
       --green: #00c853;
       --red: #ff1744;
       --yellow: #ffd600;
-      --text: #eee;
-      --text2: #999;
-      --radius: 16px;
+      --text: #f0f0f0;
+      --text2: #888;
+      --radius: 20px;
+      --gap: 20px;
     }
 
     body {
@@ -24,91 +26,94 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100dvh;
-      padding-bottom: 20px;
+      padding: 0 0 40px;
     }
 
     /* 헤더 */
     .header {
-      padding: 16px 20px;
-      background: var(--card);
+      padding: 20px;
       text-align: center;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 700;
+      letter-spacing: -0.3px;
     }
 
     /* 오늘 인증 섹션 */
     .checkin-section {
-      margin: 16px;
+      margin: 0 var(--gap);
       display: flex;
-      gap: 10px;
+      gap: 12px;
     }
 
     .checkin-card {
       flex: 1;
-      padding: 14px;
+      padding: 18px 14px;
       border-radius: var(--radius);
       text-align: center;
       cursor: pointer;
       border: none;
       color: white;
       font-family: inherit;
-      transition: transform 0.1s, opacity 0.2s;
+      transition: transform 0.15s, opacity 0.2s;
     }
 
-    .checkin-card:active { transform: scale(0.96); }
+    .checkin-card:active { transform: scale(0.95); }
 
     .checkin-card.bogyu { background: linear-gradient(135deg, #667eea, #764ba2); }
     .checkin-card.hyerim { background: linear-gradient(135deg, #f093fb, #f5576c); }
 
     .checkin-card .card-name {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 700;
       margin-bottom: 6px;
     }
 
     .checkin-card .card-status {
-      font-size: 12px;
-      opacity: 0.85;
+      font-size: 13px;
+      opacity: 0.9;
     }
 
     .checkin-card.done {
-      opacity: 0.5;
+      opacity: 0.4;
       cursor: default;
     }
 
     /* 주간 진행률 */
     .week-progress {
-      margin: 0 16px 8px;
-      padding: 16px;
+      margin: 0 var(--gap);
+      padding: 20px;
       background: var(--card);
       border-radius: var(--radius);
     }
 
     .week-progress h3 {
-      font-size: 14px;
+      font-size: 13px;
       color: var(--text2);
-      margin-bottom: 10px;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .progress-person { margin-bottom: 10px; }
+    .progress-person { margin-bottom: 14px; }
+    .progress-person:last-child { margin-bottom: 0; }
 
     .progress-person .label {
       display: flex;
       justify-content: space-between;
-      font-size: 13px;
-      margin-bottom: 4px;
+      font-size: 14px;
+      margin-bottom: 6px;
     }
 
     .progress-bar {
-      height: 8px;
-      background: #333;
-      border-radius: 4px;
+      height: 6px;
+      background: #252545;
+      border-radius: 3px;
       overflow: hidden;
     }
 
     .progress-bar .fill {
       height: 100%;
-      border-radius: 4px;
+      border-radius: 3px;
       transition: width 0.3s;
     }
 
@@ -117,36 +122,38 @@
 
     /* 벌금 카드 */
     .penalty-card {
-      margin: 8px 16px;
-      padding: 16px;
+      margin: 0 var(--gap);
+      padding: 20px;
       background: var(--card);
       border-radius: var(--radius);
     }
 
     .penalty-card h3 {
-      font-size: 14px;
+      font-size: 13px;
       color: var(--text2);
-      margin-bottom: 12px;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .penalty-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 6px 0;
+      padding: 8px 0;
     }
 
-    .penalty-row .name { font-size: 14px; }
+    .penalty-row .name { font-size: 15px; }
     .penalty-row .count { font-size: 13px; color: var(--text2); }
 
-    .penalty-row .amount { font-size: 16px; font-weight: 700; }
+    .penalty-row .amount { font-size: 17px; font-weight: 700; }
     .penalty-row .amount.red { color: var(--red); }
     .penalty-row .amount.green { color: var(--green); }
 
     .penalty-total {
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid #333;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #252545;
       text-align: center;
       font-size: 15px;
     }
@@ -156,25 +163,33 @@
       color: var(--yellow);
     }
 
+    /* 섹션 간격 */
+    .section-gap { height: 12px; }
+
     /* 달력 */
-    .calendar-section { margin: 8px 16px 16px; }
+    .calendar-section {
+      margin: 0 var(--gap);
+      padding: 20px;
+      background: var(--card);
+      border-radius: var(--radius);
+    }
 
     .cal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
 
-    .cal-header h3 { font-size: 18px; }
+    .cal-header h3 { font-size: 18px; font-weight: 700; }
 
     .cal-nav {
-      background: var(--card);
+      background: var(--card2);
       border: none;
       color: var(--text);
-      padding: 8px 14px;
-      border-radius: 10px;
-      font-size: 18px;
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 16px;
       cursor: pointer;
     }
 
@@ -182,13 +197,14 @@
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       text-align: center;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .cal-weekdays span {
       font-size: 12px;
       color: var(--text2);
-      padding: 4px;
+      padding: 6px 4px;
+      font-weight: 600;
     }
 
     .cal-weekdays span:last-child { color: var(--red); }
@@ -196,7 +212,7 @@
     .cal-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
+      gap: 6px;
     }
 
     .cal-day {
@@ -205,17 +221,17 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      border-radius: 12px;
+      border-radius: 14px;
       font-size: 14px;
       cursor: pointer;
-      background: var(--card);
+      background: var(--card2);
       transition: transform 0.1s;
     }
 
     .cal-day:active { transform: scale(0.9); }
     .cal-day.empty { background: transparent; cursor: default; }
     .cal-day.today { border: 2px solid var(--accent); }
-    .cal-day.future { opacity: 0.3; cursor: default; }
+    .cal-day.future { opacity: 0.25; cursor: default; }
 
     .cal-day .dots { display: flex; gap: 3px; margin-top: 2px; }
 
@@ -355,6 +371,8 @@
 
 <div id="debugMsg"></div>
 
+<div class="section-gap"></div>
+
 <!-- 달력 -->
 <div class="calendar-section">
   <div class="cal-header">
@@ -368,7 +386,9 @@
   <div class="cal-grid" id="calGrid"></div>
 </div>
 
-<!-- 이번주 진행률 + 벌금 -->
+<div class="section-gap"></div>
+
+<!-- 이번주 진행률 -->
 <div class="week-progress">
   <h3>📊 이번 주 진행률</h3>
   <div class="progress-person">
@@ -386,6 +406,8 @@
     <div class="progress-bar"><div class="fill hyerim" id="hyerimBar" style="width:0%"></div></div>
   </div>
 </div>
+
+<div class="section-gap"></div>
 
 <div class="penalty-card">
   <h3>💰 이번 달 벌금 현황</h3>
