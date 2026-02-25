@@ -576,8 +576,13 @@ function initSupabase() {
     alert('⚠️ supabase 설정이 필요합니다!\n\nindex.html 파일을 열어서\nSUPABASE_URL과 SUPABASE_KEY를\n입력해주세요.');
     return false;
   }
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  return true;
+  try {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    return true;
+  } catch(e) {
+    alert('Supabase 연결 오류: ' + e.message);
+    return false;
+  }
 }
 
 // ============================================
