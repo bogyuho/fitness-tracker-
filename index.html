@@ -237,6 +237,7 @@
 
     .cal-day:active { transform: scale(0.9); }
     .cal-day.empty { background: transparent; cursor: default; }
+    .cal-day.other-month { opacity: 0.3; }
     .cal-day.today { border: 2px solid var(--accent); }
     .cal-day.future { opacity: 0.25; cursor: default; }
 
@@ -632,11 +633,23 @@ function renderCalendar() {
   var firstDay = firstDow === 0 ? 6 : firstDow - 1; // 월=0, 화=1, ..., 일=6
   var daysInMonth = new Date(year, month + 1, 0).getDate();
 
+  var prevMonthDays = new Date(year, month, 0).getDate();
   var html = '';
-  for (var i = 0; i < firstDay; i++) {
-    html += '<div class="cal-day empty"></div>';
+
+  // 이전 달 날짜 (빈 칸 대신 실제 날짜 표시)
+  for (var i = firstDay - 1; i >= 0; i--) {
+    var prevD = prevMonthDays - i;
+    var prevDateObj = new Date(year, month - 1, prevD);
+    var prevDateStr = formatDate(prevDateObj);
+    var prevDayData = checkinData[prevDateStr] || {};
+    var prevDots = '';
+    if (prevDayData['\uBCF4\uADDC']) prevDots += '<div class="dot bogyu"></div>';
+    if (prevDayData['\uD61C\uB9BC']) prevDots += '<div class="dot hyerim"></div>';
+    html += '<div class="cal-day other-month" data-date="' + prevDateStr + '">';
+    html += '<span>' + prevD + '</span><div class="dots">' + prevDots + '</div></div>';
   }
 
+  // 현재 달 날짜
   for (var d = 1; d <= daysInMonth; d++) {
     var dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
     var dateObj = new Date(year, month, d);
@@ -660,6 +673,30 @@ function renderCalendar() {
       html += '<div class="' + cls + '">';
     }
     html += '<span>' + d + '</span><div class="dots">' + dots + '</div></div>';
+  }
+
+  // 다음 달 날짜 (주 완성)
+  var totalCells = firstDay + daysInMonth;
+  var trailingDays = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+  for (var t = 1; t <= trailingDays; t++) {
+    var nextDateObj = new Date(year, month + 1, t);
+    var nextDateStr = formatDate(nextDateObj);
+    var nextDayData = checkinData[nextDateStr] || {};
+    var nextDots = '';
+    var nextIsFuture = nextDateObj > today;
+    if (!nextIsFuture) {
+      if (nextDayData['\uBCF4\uADDC']) nextDots += '<div class="dot bogyu"></div>';
+      if (nextDayData['\uD61C\uB9BC']) nextDots += '<div class="dot hyerim"></div>';
+    }
+    var nextCls = 'cal-day other-month';
+    if (nextDateStr === todayStr) nextCls += ' today';
+    if (nextIsFuture) nextCls += ' future';
+    if (!nextIsFuture) {
+      html += '<div class="' + nextCls + '" data-date="' + nextDateStr + '">';
+    } else {
+      html += '<div class="' + nextCls + '">';
+    }
+    html += '<span>' + t + '</span><div class="dots">' + nextDots + '</div></div>';
   }
 
   document.getElementById('calGrid').innerHTML = html;
