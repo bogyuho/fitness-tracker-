@@ -557,9 +557,11 @@ function initSupabase() {
 async function loadData() {
   var year = currentMonth.getFullYear();
   var month = currentMonth.getMonth();
-  var startDate = year + '-' + String(month + 1).padStart(2, '0') + '-01';
-  var lastDay = new Date(year, month + 1, 0).getDate();
-  var endDate = year + '-' + String(month + 1).padStart(2, '0') + '-' + lastDay;
+  // 월 경계 주간 데이터 포함을 위해 ±7일 버퍼
+  var bufferStart = new Date(year, month, 1 - 7);
+  var bufferEnd = new Date(year, month + 1, 7);
+  var startDate = formatDate(bufferStart);
+  var endDate = formatDate(bufferEnd);
 
   var result = await supabaseClient
     .from('checkins')
@@ -712,24 +714,35 @@ function renderPenalty() {
 
 function getCompletedWeeks(year, month, today) {
   var weeks = [];
+  var appStart = new Date(APP_START_DATE + 'T00:00:00');
+
+  // 해당 월 1일의 직전 월요일 찾기
+  var firstOfMonth = new Date(year, month, 1);
+  var firstDow = firstOfMonth.getDay();
+  var mondayOffset = firstDow === 0 ? -6 : 1 - firstDow;
+  var iterStart = new Date(year, month, 1 + mondayOffset);
+
+  // 해당 월 말일의 직후 일요일 찾기
+  var lastOfMonth = new Date(year, month + 1, 0);
+  var lastDow = lastOfMonth.getDay();
+  var sundayOffset = lastDow === 0 ? 0 : 7 - lastDow;
+  var iterEnd = new Date(year, month + 1, sundayOffset);
+
   var currentWeek = [];
-  var daysInMonth = new Date(year, month + 1, 0).getDate();
-  var startDate = new Date(APP_START_DATE + 'T00:00:00');
+  var d = new Date(iterStart);
+  while (d <= iterEnd) {
+    currentWeek.push(formatDate(d));
 
-  for (var d = 1; d <= daysInMonth; d++) {
-    var dateObj = new Date(year, month, d);
-    var dateStr = formatDate(dateObj);
-    currentWeek.push(dateStr);
-
-    // 월~일 기준: 일요일(0)이 주의 마지막 날
-    if (dateObj.getDay() === 0 || d === daysInMonth) {
-      var lastDayOfWeek = new Date(year, month, d);
-      // 7일 미만인 불완전한 주는 벌금 계산에서 제외
-      if (currentWeek.length >= 7 && lastDayOfWeek <= today && lastDayOfWeek >= startDate) {
+    if (d.getDay() === 0) {
+      // 주의 월요일이 해당 월에 속하면 이 달의 벌금으로 카운트
+      var weekMonday = new Date(d);
+      weekMonday.setDate(d.getDate() - 6);
+      if (weekMonday.getMonth() === month && currentWeek.length >= 7 && d <= today && d >= appStart) {
         weeks.push(currentWeek.slice());
       }
       currentWeek = [];
     }
+    d.setDate(d.getDate() + 1);
   }
   return weeks;
 }
