@@ -497,7 +497,8 @@
 // ============================================
 var SUPABASE_URL = 'https://hdxrxfygqfakgcefkrdc.supabase.co';
 var SUPABASE_KEY = 'sb_publishable_HSZEGMrG-N4I6sdkSRQFSw_W4r3f3R0';
-var WEEKLY_TARGET = 4;
+var WEEKLY_TARGET_BOGYU = 4;
+var WEEKLY_TARGET_HYERIM = 1;
 var PENALTY_PER_MISS = 100000;
 var APP_START_DATE = '2026-02-24';
 
@@ -720,8 +721,8 @@ function renderPenalty() {
       if (dayData['\uBCF4\uADDC']) bc++;
       if (dayData['\uD61C\uB9BC']) hc++;
     });
-    bogyuMisses += Math.max(0, WEEKLY_TARGET - bc);
-    hyerimMisses += Math.max(0, WEEKLY_TARGET - hc);
+    bogyuMisses += Math.max(0, WEEKLY_TARGET_BOGYU - bc);
+    hyerimMisses += Math.max(0, WEEKLY_TARGET_HYERIM - hc);
   });
 
   var bp = bogyuMisses * PENALTY_PER_MISS;
@@ -804,10 +805,10 @@ function renderWeekProgress() {
     if (dayData['\uD61C\uB9BC']) hc++;
   }
 
-  document.getElementById('bogyuWeekCount').textContent = bc + '/' + WEEKLY_TARGET;
-  document.getElementById('hyerimWeekCount').textContent = hc + '/' + WEEKLY_TARGET;
-  document.getElementById('bogyuBar').style.width = Math.min(100, (bc / WEEKLY_TARGET) * 100) + '%';
-  document.getElementById('hyerimBar').style.width = Math.min(100, (hc / WEEKLY_TARGET) * 100) + '%';
+  document.getElementById('bogyuWeekCount').textContent = bc + '/' + WEEKLY_TARGET_BOGYU;
+  document.getElementById('hyerimWeekCount').textContent = hc + '/' + WEEKLY_TARGET_HYERIM;
+  document.getElementById('bogyuBar').style.width = Math.min(100, (bc / WEEKLY_TARGET_BOGYU) * 100) + '%';
+  document.getElementById('hyerimBar').style.width = Math.min(100, (hc / WEEKLY_TARGET_HYERIM) * 100) + '%';
 }
 
 // ============================================
