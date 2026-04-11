@@ -55,7 +55,7 @@
 
     .checkin-row {
       display: grid;
-      grid-template-columns: 54px 1fr 1fr;
+      grid-template-columns: 68px 1fr 1fr;
       align-items: stretch;
       gap: 10px;
     }
@@ -63,9 +63,24 @@
     .row-name {
       display: flex;
       align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
       color: var(--text);
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
+      letter-spacing: -0.2px;
+    }
+
+    .row-name.bogyu {
+      color: #C7D2FE;
+      background: rgba(99,102,241,0.14);
+    }
+
+    .row-name.hyerim {
+      color: #FFE4E6;
+      background: rgba(244,63,94,0.14);
     }
 
     .checkin-card {
@@ -436,7 +451,7 @@
 <!-- 오늘 인증 -->
 <div class="checkin-list">
   <div class="checkin-row">
-    <div class="row-name">보규</div>
+    <div class="row-name bogyu">보규</div>
     <button class="checkin-card bogyu" id="checkinBogyu">
       <div class="card-name">💪 운동</div>
       <div class="card-status" id="statusBogyu">인증하기</div>
@@ -447,7 +462,7 @@
     </button>
   </div>
   <div class="checkin-row">
-    <div class="row-name">혜림</div>
+    <div class="row-name hyerim">혜림</div>
     <button class="checkin-card hyerim" id="checkinHyerim">
       <div class="card-name">💪 운동</div>
       <div class="card-status" id="statusHyerim">인증하기</div>
