@@ -1221,14 +1221,10 @@ function renderTodoMarkRow(dateStr) {
   var b = getTodoSummary(dateStr, '\uBCF4\uADDC');
   var h = getTodoSummary(dateStr, '\uD61C\uB9BC');
   if (!b.total && !h.total) return '';
-  var html = '';
-  if (b.total) {
-    html += '<div class="mark-row todo-mark-row person"><span class="todo-count bogyu">B ' + b.done + '/' + b.total + '</span></div>';
-  }
-  if (h.total) {
-    html += '<div class="mark-row todo-mark-row person"><span class="todo-count hyerim">H ' + h.done + '/' + h.total + '</span></div>';
-  }
-  return html;
+  var parts = [];
+  if (b.total) parts.push('<span class="todo-count bogyu">B ' + b.done + '/' + b.total + '</span>');
+  if (h.total) parts.push('<span class="todo-count hyerim">H ' + h.done + '/' + h.total + '</span>');
+  return '<div class="mark-row todo-mark-row person">' + parts.join('') + '</div>';
 }
 
 function renderFutureTodoMarks(dateStr) {
