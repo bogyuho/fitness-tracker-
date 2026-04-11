@@ -68,18 +68,6 @@
       border: 1px solid rgba(255,255,255,0.06);
     }
 
-    .checkin-row:before {
-      content: '';
-      position: absolute;
-      inset: 8px auto 8px 0;
-      width: 3px;
-      border-radius: 999px;
-      opacity: 0.9;
-    }
-
-    .checkin-row.bogyu-row:before { background: #818CF8; }
-    .checkin-row.hyerim-row:before { background: #FB7185; }
-
     .row-name { display: none; }
 
     .checkin-card {
@@ -103,12 +91,12 @@
     .checkin-card:active { transform: scale(0.95); }
 
     .checkin-card.bogyu {
-      background: linear-gradient(180deg, rgba(99,102,241,0.82), rgba(79,70,229,0.62));
-      border-color: rgba(129,140,248,0.28);
+      background: linear-gradient(135deg, #6366F1, #4F46E5);
+      border-color: rgba(129,140,248,0.22);
     }
     .checkin-card.hyerim {
-      background: linear-gradient(180deg, rgba(251,113,133,0.82), rgba(244,63,94,0.62));
-      border-color: rgba(251,113,133,0.28);
+      background: linear-gradient(135deg, #FB7185, #F43F5E);
+      border-color: rgba(251,113,133,0.22);
     }
     .checkin-card .card-name {
       font-size: 13px;
@@ -736,7 +724,7 @@
 
 <!-- 오늘 인증 -->
 <div class="checkin-list">
-  <div class="checkin-row bogyu-row">
+  <div class="checkin-row">
     <div class="row-name bogyu">보규</div>
     <button class="checkin-card bogyu" id="checkinBogyu">
       <div class="card-name">💪 운동</div>
@@ -751,7 +739,7 @@
       <div class="card-status" id="statusTodoBogyu">추가</div>
     </button>
   </div>
-  <div class="checkin-row hyerim-row">
+  <div class="checkin-row">
     <div class="row-name hyerim">혜림</div>
     <button class="checkin-card hyerim" id="checkinHyerim">
       <div class="card-name">💪 운동</div>
