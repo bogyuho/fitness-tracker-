@@ -270,7 +270,7 @@
     }
 
     .cal-day {
-      min-height: 54px;
+      min-height: 66px;
       min-width: 0;
       overflow: visible;
       display: flex;
@@ -290,6 +290,7 @@
     .cal-day.other-month { opacity: 0.3; }
     .cal-day.today { border: 2px solid var(--accent); }
     .cal-day.future { opacity: 0.25; cursor: default; }
+    .cal-day.future.has-todo { opacity: 0.55; cursor: pointer; }
 
     .cal-day .day-num {
       font-size: 12px;
@@ -303,7 +304,7 @@
       flex-direction: column;
       gap: 1px;
       width: 100%;
-      font-size: 8px;
+      font-size: 8.5px;
       line-height: 1.1;
       overflow: visible;
     }
@@ -324,7 +325,7 @@
     .todo-mark-row {
       justify-content: center;
       gap: 2px;
-      font-size: 7px;
+      font-size: 7.5px;
       letter-spacing: -0.4px;
     }
 
@@ -862,6 +863,7 @@ var currentUser = null;
 var currentCheckinType = TYPE_WORKOUT;
 var currentTodoUser = null;
 var currentTodoItem = null;
+var currentViewedDate = null;
 var currentMonth = new Date();
 var checkinData = {};
 var todoData = {};
@@ -1053,6 +1055,10 @@ function getTodoSummary(dateStr, userName) {
   return { total: items.length, done: done, pending: items.length - done };
 }
 
+function hasTodoOnDate(dateStr) {
+  return getActiveTodos(dateStr, '\uBCF4\uADDC').length > 0 || getActiveTodos(dateStr, '\uD61C\uB9BC').length > 0;
+}
+
 function getActiveTodos(dateStr, userName) {
   return getTodos(dateStr, userName).filter(function(item) {
     return !item.cancelled_at;
@@ -1196,12 +1202,14 @@ function renderCalendar() {
 
     var dayData = checkinData[dateStr] || {};
     var marks = isFuture ? renderFutureTodoMarks(dateStr) : renderCalendarMarks(dayData, dateStr);
+    var hasFutureTodo = isFuture && hasTodoOnDate(dateStr);
 
     var cls = 'cal-day';
     if (isToday) cls += ' today';
     if (isFuture) cls += ' future';
+    if (hasFutureTodo) cls += ' has-todo';
 
-    if (!isFuture) {
+    if (!isFuture || hasFutureTodo) {
       html += '<div class="' + cls + '" data-date="' + dateStr + '">';
     } else {
       html += '<div class="' + cls + '">';
@@ -1218,10 +1226,12 @@ function renderCalendar() {
     var nextDayData = checkinData[nextDateStr] || {};
     var nextIsFuture = nextDateObj > today;
     var nextMarks = nextIsFuture ? renderFutureTodoMarks(nextDateStr) : renderCalendarMarks(nextDayData, nextDateStr);
+    var nextHasFutureTodo = nextIsFuture && hasTodoOnDate(nextDateStr);
     var nextCls = 'cal-day other-month';
     if (nextDateStr === todayStr) nextCls += ' today';
     if (nextIsFuture) nextCls += ' future';
-    if (!nextIsFuture) {
+    if (nextHasFutureTodo) nextCls += ' has-todo';
+    if (!nextIsFuture || nextHasFutureTodo) {
       html += '<div class="' + nextCls + '" data-date="' + nextDateStr + '">';
     } else {
       html += '<div class="' + nextCls + '">';
@@ -1518,15 +1528,21 @@ function getTodoMetaText(item) {
   return '\uBBF8\uC644\uB8CC';
 }
 
-function findTodayTodo(todoId) {
-  var todayStr = formatDate(new Date());
-  return getTodos(todayStr, currentTodoUser).find(function(item) {
-    return String(item.id) === String(todoId);
+function findTodoItem(todoId) {
+  var found = null;
+  Object.keys(todoData).some(function(dateStr) {
+    return Object.keys(todoData[dateStr] || {}).some(function(userName) {
+      found = getTodos(dateStr, userName).find(function(item) {
+        return String(item.id) === String(todoId);
+      }) || null;
+      return !!found;
+    });
   });
+  return found;
 }
 
 async function cancelTodoItem(todoId) {
-  var item = findTodayTodo(todoId);
+  var item = findTodoItem(todoId);
   if (!item || !canCancelTodo(item)) return;
   if (!confirm('\uC774 \uD22C\uB450\uB97C \uC2E4\uC218 \uCDE8\uC18C\uD560\uAE4C\uC694?')) return;
 
@@ -1546,6 +1562,9 @@ async function cancelTodoItem(todoId) {
 
   await loadData();
   renderTodoModal();
+  if (document.getElementById('photoViewModal').classList.contains('active') && currentViewedDate) {
+    viewDay(currentViewedDate);
+  }
 }
 
 function getTodoDatesForScope(scope, weekdays) {
@@ -1632,8 +1651,9 @@ async function addTodoItem() {
 }
 
 function openTodoProofModal(todoId) {
-  currentTodoItem = findTodayTodo(todoId);
+  currentTodoItem = findTodoItem(todoId);
   if (!currentTodoItem || currentTodoItem.proof_photo_url || currentTodoItem.cancelled_at) return;
+  if (currentTodoItem.todo_date !== formatDate(new Date())) return;
 
   currentUser = currentTodoItem.user_name;
   currentCheckinType = TYPE_TODO;
@@ -1781,6 +1801,7 @@ async function submitCheckin() {
 // 날짜 클릭 → 사진 보기
 // ============================================
 function viewDay(dateStr) {
+  currentViewedDate = dateStr;
   var dayData = checkinData[dateStr] || {};
   var parts = dateStr.split('-');
 
@@ -1842,6 +1863,9 @@ function renderDayTodoSection(dateStr) {
       html += '<div class="info">';
       html += '<span class="badge ' + cls + '">' + getTodoStateIcon(item) + ' ' + escapeHtml(item.title) + '</span>';
       html += '<span style="color:#999;font-size:12px">' + getTodoMetaText(item) + '</span>';
+      if (canCancelTodo(item)) {
+        html += '<button class="todo-cancel-btn" data-cancel-todo-id="' + item.id + '">5\uBD84 \uCDE8\uC18C</button>';
+      }
       html += '</div></div>';
     });
   });
@@ -2066,6 +2090,12 @@ window.addEventListener('DOMContentLoaded', function() {
   document.getElementById('submitBtn').addEventListener('click', submitCheckin);
   document.getElementById('closePhotoBtn').addEventListener('click', function() {
     document.getElementById('photoViewModal').classList.remove('active');
+  });
+  document.getElementById('photosGrid').addEventListener('click', function(e) {
+    var cancelBtn = e.target.closest('[data-cancel-todo-id]');
+    if (cancelBtn) {
+      cancelTodoItem(cancelBtn.dataset.cancelTodoId);
+    }
   });
   document.getElementById('prevMonth').addEventListener('click', function() {
     currentMonth.setMonth(currentMonth.getMonth() - 1);
