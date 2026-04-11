@@ -760,6 +760,8 @@
     .photo-card .info {
       padding: 10px 14px;
       display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
       justify-content: space-between;
       align-items: center;
     }
@@ -1773,8 +1775,8 @@ function getTodoStateIcon(item) {
 
 function getTodoMetaText(item) {
   if (item.proof_photo_url) return formatTodoTime(item.completed_at) + ' \uC778\uC99D';
-  if (isFutureTodo(item)) return '\uC608\uC815 \u00B7 \uB0A0\uC9DC \uC804\uAE4C\uC9C0 \uCDE8\uC18C \uAC00\uB2A5';
-  if (canCancelTodo(item)) return '5\uBD84 \uC548\uC5D0 \uCDE8\uC18C \uAC00\uB2A5';
+  if (isFutureTodo(item)) return '\uC608\uC815';
+  if (canCancelTodo(item)) return '5\uBD84 \uCDE8\uC18C \uAC00\uB2A5';
   return '\uBBF8\uC644\uB8CC';
 }
 
