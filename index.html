@@ -405,11 +405,6 @@
       display: block;
     }
 
-    .photo-card img.portrait {
-      height: 400px;
-      object-fit: cover;
-    }
-
     .photo-card .info {
       padding: 10px 14px;
       display: flex;
@@ -1132,7 +1127,7 @@ function viewDay(dateStr) {
         var cls = name === '\uBCF4\uADDC' ? 'bogyu' : 'hyerim';
         groupHtml += '<div class="photo-card">';
         if (photoUrl && photoUrl !== 'none' && photoUrl !== '') {
-          groupHtml += '<img src="' + photoUrl + '" alt="' + name + '" loading="lazy" onload="markPhotoOrientation(this)">';
+          groupHtml += '<img src="' + photoUrl + '" alt="' + name + '" loading="lazy">';
         }
         groupHtml += '<div class="info">';
         groupHtml += '<span class="badge ' + cls + '">' + name + '</span>';
@@ -1164,12 +1159,6 @@ function formatDate(d) {
 function formatMoney(amount) {
   if (amount === 0) return '0\uC6D0';
   return (amount / 10000) + '\uB9CC\uC6D0';
-}
-
-function markPhotoOrientation(img) {
-  if (img.naturalHeight > img.naturalWidth) {
-    img.classList.add('portrait');
-  }
 }
 
 function isMissingCheckinTypeError(error) {
