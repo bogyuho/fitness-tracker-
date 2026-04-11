@@ -706,6 +706,14 @@
     .day-todo-add .bogyu { background: linear-gradient(135deg, #6366F1, #4F46E5); }
     .day-todo-add .hyerim { background: linear-gradient(135deg, #FB7185, #F43F5E); }
 
+    .day-empty {
+      text-align: center;
+      color: var(--text2);
+      padding: 16px 10px 10px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
     .choice-body {
       color: var(--text2);
       font-size: 14px;
@@ -2117,51 +2125,57 @@ async function submitCheckin() {
 }
 
 // ============================================
-// 날짜 클릭 → 사진 보기
+// 날짜 클릭 → 날짜 상세
 // ============================================
 function viewDay(dateStr) {
   currentViewedDate = dateStr;
   var dayData = checkinData[dateStr] || {};
-  var parts = dateStr.split('-');
+  var todayStr = formatDate(new Date());
+  var isFuture = dateStr > todayStr;
 
-  document.getElementById('photoViewTitle').textContent = parseInt(parts[1]) + '\uC6D4 ' + parseInt(parts[2]) + '\uC77C \uC778\uC99D';
+  document.getElementById('photoViewTitle').textContent = formatShortDate(dateStr) + (isFuture ? ' To do' : ' \uC778\uC99D');
 
   var html = '';
-  [
-    { type: TYPE_WORKOUT, label: '\uD83D\uDCAA 운동' },
-    { type: TYPE_MORNING, label: '\uD83C\uDF1E 아침' }
-  ].forEach(function(group) {
-    var typeData = dayData[group.type] || {};
-    var groupHtml = '';
-    ['\uBCF4\uADDC', '\uD61C\uB9BC'].forEach(function(name) {
-      if (typeData[name]) {
-        var photoUrl = typeData[name].photo_url;
-        var cls = name === '\uBCF4\uADDC' ? 'bogyu' : 'hyerim';
-        groupHtml += '<div class="photo-card">';
-        if (photoUrl && photoUrl !== 'none' && photoUrl !== '') {
-          groupHtml += '<img src="' + photoUrl + '" alt="' + name + '" loading="lazy">';
+  if (!isFuture) {
+    [
+      { type: TYPE_WORKOUT, label: '\uD83D\uDCAA 운동' },
+      { type: TYPE_MORNING, label: '\uD83C\uDF1E 아침' }
+    ].forEach(function(group) {
+      var typeData = dayData[group.type] || {};
+      var groupHtml = '';
+      ['\uBCF4\uADDC', '\uD61C\uB9BC'].forEach(function(name) {
+        if (typeData[name]) {
+          var photoUrl = typeData[name].photo_url;
+          var cls = name === '\uBCF4\uADDC' ? 'bogyu' : 'hyerim';
+          groupHtml += '<div class="photo-card">';
+          if (photoUrl && photoUrl !== 'none' && photoUrl !== '') {
+            groupHtml += '<img src="' + photoUrl + '" alt="' + name + '" loading="lazy">';
+          }
+          groupHtml += '<div class="info">';
+          groupHtml += '<span class="badge ' + cls + '">' + name + '</span>';
+          groupHtml += '<span style="color:#999;font-size:12px">' + new Date(typeData[name].created_at).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'}) + '</span>';
+          groupHtml += '</div></div>';
         }
-        groupHtml += '<div class="info">';
-        groupHtml += '<span class="badge ' + cls + '">' + name + '</span>';
-        groupHtml += '<span style="color:#999;font-size:12px">' + new Date(typeData[name].created_at).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'}) + '</span>';
-        groupHtml += '</div></div>';
+      });
+
+      if (groupHtml) {
+        html += '<h4 style="margin:8px 0 0;color:#ccc;font-size:14px">' + group.label + '</h4>' + groupHtml;
       }
     });
-
-    if (groupHtml) {
-      html += '<h4 style="margin:8px 0 0;color:#ccc;font-size:14px">' + group.label + '</h4>' + groupHtml;
-    }
-  });
+  }
 
   var todoHtml = renderDayTodoSection(dateStr);
   if (todoHtml) {
     html += todoHtml;
   }
-  html += renderDayTodoAddActions(dateStr);
+  var todoAddActions = renderDayTodoAddActions(dateStr);
 
-  if (!html) {
-    html = '<p style="text-align:center;color:#999;padding:20px">\uC774 \uB0A0\uC740 \uC778\uC99D \uAE30\uB85D\uC774 \uC5C6\uC2B5\uB2C8\uB2E4</p>';
+  if (isFuture && !html) {
+    html = '<p class="day-empty">\uC774 \uB0A0\uC9DC\uC5D0 To do\uB97C \uCD94\uAC00\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.</p>';
+  } else if (!html && !todoAddActions) {
+    html = '<p class="day-empty">\uC774 \uB0A0\uC740 \uC778\uC99D \uAE30\uB85D\uC774 \uC5C6\uC2B5\uB2C8\uB2E4.</p>';
   }
+  html += todoAddActions;
 
   document.getElementById('photosGrid').innerHTML = html;
   document.getElementById('photoViewModal').classList.add('active');
