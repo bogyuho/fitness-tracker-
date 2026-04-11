@@ -1573,10 +1573,11 @@ async function submitTodoProof() {
   var todayStr = formatDate(new Date());
   var safeUser = currentUser === '\uBCF4\uADDC' ? 'bogyu' : 'hyerim';
   var fileName = 'todo/' + safeUser + '/' + todayStr + '/todo-' + currentTodoItem.id + '-' + Date.now() + '.jpg';
+  var uploadFile = await createWatermarkedImage(selectedFile);
 
   var uploadResult = await supabaseClient.storage
     .from('photos')
-    .upload(fileName, selectedFile, { contentType: selectedFile.type });
+    .upload(fileName, uploadFile, { contentType: uploadFile.type || 'image/jpeg' });
   if (uploadResult.error) throw uploadResult.error;
 
   var urlData = supabaseClient.storage
@@ -1651,10 +1652,11 @@ async function submitCheckin() {
     var safeUser = currentUser === '\uBCF4\uADDC' ? 'bogyu' : 'hyerim';
     var safeType = currentCheckinType === TYPE_MORNING ? 'morning' : 'workout';
     var fileName = safeType + '/' + safeUser + '/' + todayStr + '_' + Date.now() + '.jpg';
+    var uploadFile = await createWatermarkedImage(selectedFile);
 
     var uploadResult = await supabaseClient.storage
       .from('photos')
-      .upload(fileName, selectedFile, { contentType: selectedFile.type });
+      .upload(fileName, uploadFile, { contentType: uploadFile.type || 'image/jpeg' });
 
     if (uploadResult.error) throw uploadResult.error;
 
@@ -1777,6 +1779,100 @@ function formatDate(d) {
 function formatTodoTime(value) {
   if (!value) return '';
   return new Date(value).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
+}
+
+async function createWatermarkedImage(file) {
+  var lines = await buildWatermarkLines();
+  return new Promise(function(resolve) {
+    var image = new Image();
+    var objectUrl = URL.createObjectURL(file);
+    image.onload = function() {
+      try {
+        var canvas = document.createElement('canvas');
+        canvas.width = image.naturalWidth || image.width;
+        canvas.height = image.naturalHeight || image.height;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        drawWatermark(ctx, canvas.width, canvas.height, lines);
+        canvas.toBlob(function(blob) {
+          URL.revokeObjectURL(objectUrl);
+          if (!blob) {
+            resolve(file);
+            return;
+          }
+          resolve(new File([blob], makeWatermarkedFileName(file.name), {
+            type: 'image/jpeg',
+            lastModified: Date.now()
+          }));
+        }, 'image/jpeg', 0.92);
+      } catch (err) {
+        URL.revokeObjectURL(objectUrl);
+        console.warn('Watermark error:', err);
+        resolve(file);
+      }
+    };
+    image.onerror = function() {
+      URL.revokeObjectURL(objectUrl);
+      resolve(file);
+    };
+    image.src = objectUrl;
+  });
+}
+
+async function buildWatermarkLines() {
+  var now = new Date();
+  var timeText = now.toLocaleString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+  var locationText = await getLocationText();
+  return [timeText, locationText];
+}
+
+function getLocationText() {
+  if (!navigator.geolocation) {
+    return Promise.resolve('\uC704\uCE58 \uBBF8\uC9C0\uC6D0');
+  }
+  return new Promise(function(resolve) {
+    navigator.geolocation.getCurrentPosition(function(pos) {
+      var c = pos.coords;
+      resolve('\uC704\uCE58 ' + c.latitude.toFixed(5) + ', ' + c.longitude.toFixed(5) + ' \u00B1' + Math.round(c.accuracy) + 'm');
+    }, function() {
+      resolve('\uC704\uCE58 \uBBF8\uD655\uC778');
+    }, {
+      enableHighAccuracy: true,
+      timeout: 7000,
+      maximumAge: 0
+    });
+  });
+}
+
+function drawWatermark(ctx, width, height, lines) {
+  var fontSize = Math.max(22, Math.round(width * 0.035));
+  var padding = Math.max(18, Math.round(width * 0.025));
+  var lineHeight = Math.round(fontSize * 1.35);
+  var boxHeight = padding * 2 + lineHeight * lines.length;
+  var y = height - boxHeight;
+
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.58)';
+  ctx.fillRect(0, y, width, boxHeight);
+  ctx.font = '700 ' + fontSize + 'px sans-serif';
+  ctx.fillStyle = '#fff';
+  ctx.textBaseline = 'top';
+  ctx.shadowColor = 'rgba(0,0,0,0.7)';
+  ctx.shadowBlur = 4;
+  lines.forEach(function(line, i) {
+    ctx.fillText(line, padding, y + padding + i * lineHeight, width - padding * 2);
+  });
+  ctx.restore();
+}
+
+function makeWatermarkedFileName(name) {
+  return String(name || 'proof.jpg').replace(/\.[^.]+$/, '') + '-watermarked.jpg';
 }
 
 function escapeHtml(value) {
