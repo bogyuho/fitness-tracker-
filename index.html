@@ -58,6 +58,7 @@
       grid-template-columns: 68px 1fr 1fr;
       align-items: stretch;
       gap: 10px;
+      min-height: 72px;
     }
 
     .row-name {
@@ -92,6 +93,11 @@
       color: white;
       font-family: inherit;
       transition: transform 0.15s, opacity 0.2s;
+      min-height: 72px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
     .checkin-card:active { transform: scale(0.95); }
@@ -443,19 +449,6 @@
       font-weight: 400;
     }
 
-    .footer-quote {
-      margin: 26px var(--gap) 0;
-      padding: 8px 0;
-      text-align: center;
-      color: rgba(245,245,247,0.42);
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-    }
-
-    .footer-quote span {
-      color: inherit;
-    }
   </style>
 </head>
 <body>
@@ -573,8 +566,6 @@
   </div>
   <div class="penalty-total" id="penaltyTotal"></div>
 </div>
-
-<div class="footer-quote"><span>인생은 기세야</span></div>
 
 <!-- 인증 모달 -->
 <div class="modal-overlay" id="checkinModal">
