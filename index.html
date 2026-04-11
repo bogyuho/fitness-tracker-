@@ -52,6 +52,14 @@
       gap: 12px;
     }
 
+    .checkin-label {
+      margin: 14px var(--gap) 8px;
+      color: var(--text2);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
     .checkin-card {
       flex: 1;
       padding: 18px 14px;
@@ -68,6 +76,8 @@
 
     .checkin-card.bogyu { background: linear-gradient(135deg, #6366F1, #4F46E5); }
     .checkin-card.hyerim { background: linear-gradient(135deg, #FB7185, #F43F5E); }
+    .checkin-card.morning.bogyu { background: linear-gradient(135deg, #0EA5E9, #2563EB); }
+    .checkin-card.morning.hyerim { background: linear-gradient(135deg, #F59E0B, #F97316); }
 
     .checkin-card .card-name {
       font-size: 16px;
@@ -82,6 +92,11 @@
 
     .checkin-card.done {
       opacity: 0.4;
+      cursor: default;
+    }
+
+    .checkin-card.disabled {
+      opacity: 0.35;
       cursor: default;
     }
 
@@ -227,12 +242,13 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       border-radius: 14px;
       font-size: 14px;
       cursor: pointer;
       background: var(--card2);
       transition: transform 0.1s;
+      padding: 5px 2px 3px;
     }
 
     .cal-day:active { transform: scale(0.9); }
@@ -241,16 +257,33 @@
     .cal-day.today { border: 2px solid var(--accent); }
     .cal-day.future { opacity: 0.25; cursor: default; }
 
-    .cal-day .dots { display: flex; gap: 3px; margin-top: 2px; }
-
-    .cal-day .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
+    .cal-day .day-num {
+      font-size: 13px;
+      line-height: 1;
+      margin-bottom: 3px;
     }
 
-    .dot.bogyu { background: #818CF8; }
-    .dot.hyerim { background: #FB7185; }
+    .cal-day .marks {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      width: 100%;
+      font-size: 9px;
+      line-height: 1;
+    }
+
+    .mark-row {
+      display: flex;
+      justify-content: center;
+      gap: 2px;
+      white-space: nowrap;
+    }
+
+    .mark-type { opacity: 0.85; }
+    .mark-name { opacity: 0.25; font-weight: 700; }
+    .mark-name.on { opacity: 1; }
+    .mark-name.bogyu.on { color: #A5B4FC; }
+    .mark-name.hyerim.on { color: #FDA4AF; }
 
     /* 모달 */
     .modal-overlay {
@@ -392,6 +425,7 @@
 <div class="header">💪 헬스 트래커</div>
 
 <!-- 오늘 인증 -->
+<div class="checkin-label">💪 운동 인증</div>
 <div class="checkin-section">
   <button class="checkin-card bogyu" id="checkinBogyu">
     <div class="card-name">보규</div>
@@ -400,6 +434,18 @@
   <button class="checkin-card hyerim" id="checkinHyerim">
     <div class="card-name">혜림</div>
     <div class="card-status" id="statusHyerim">📸 인증하기</div>
+  </button>
+</div>
+
+<div class="checkin-label">🌅 아침 인증</div>
+<div class="checkin-section">
+  <button class="checkin-card morning bogyu" id="morningBogyu">
+    <div class="card-name">보규</div>
+    <div class="card-status" id="statusMorningBogyu">11시 전 · 야외 · 평일 4회</div>
+  </button>
+  <button class="checkin-card morning hyerim" id="morningHyerim">
+    <div class="card-name">혜림</div>
+    <div class="card-status" id="statusMorningHyerim">9시 전 · 사무실 · 평2+주2</div>
   </button>
 </div>
 
@@ -438,6 +484,26 @@
       <span id="hyerimWeekCount">0/4</span>
     </div>
     <div class="progress-bar"><div class="fill hyerim" id="hyerimBar" style="width:0%"></div></div>
+  </div>
+</div>
+
+<div class="section-gap"></div>
+
+<div class="week-progress">
+  <h3>🌅 이번 주 아침 진행률</h3>
+  <div class="progress-person">
+    <div class="label">
+      <span>보규 (11시 전 야외 · 평일 4회)</span>
+      <span id="bogyuMorningWeekCount">0/4</span>
+    </div>
+    <div class="progress-bar"><div class="fill bogyu" id="bogyuMorningBar" style="width:0%"></div></div>
+  </div>
+  <div class="progress-person">
+    <div class="label">
+      <span>혜림 (9시 전 사무실 · 평2+주2)</span>
+      <span id="hyerimMorningWeekCount">평0/2 주0/2</span>
+    </div>
+    <div class="progress-bar"><div class="fill hyerim" id="hyerimMorningBar" style="width:0%"></div></div>
   </div>
 </div>
 
@@ -501,6 +567,8 @@ var WEEKLY_TARGET_BOGYU = 4;
 var WEEKLY_TARGET_HYERIM = 4;
 var PENALTY_PER_MISS = 100000;
 var APP_START_DATE = '2026-02-24';
+var TYPE_WORKOUT = 'workout';
+var TYPE_MORNING = 'morning';
 
 // ============================================
 // 인앱 브라우저 감지
@@ -529,6 +597,7 @@ var APP_START_DATE = '2026-02-24';
 // ============================================
 var supabaseClient = null;
 var currentUser = null;
+var currentCheckinType = TYPE_WORKOUT;
 var currentMonth = new Date();
 var checkinData = {};
 var selectedFile = null;
@@ -582,7 +651,11 @@ async function loadData() {
     if (!checkinData[row.checked_date]) {
       checkinData[row.checked_date] = {};
     }
-    checkinData[row.checked_date][row.user_name] = row;
+    var type = row.checkin_type || TYPE_WORKOUT;
+    if (!checkinData[row.checked_date][type]) {
+      checkinData[row.checked_date][type] = {};
+    }
+    checkinData[row.checked_date][type][row.user_name] = row;
   });
 
   renderCalendar();
@@ -596,11 +669,12 @@ async function loadData() {
 // ============================================
 function updateCheckinBtns() {
   var todayStr = formatDate(new Date());
-  var todayData = checkinData[todayStr] || {};
+  var workoutData = getTypeData(todayStr, TYPE_WORKOUT);
+  var morningData = getTypeData(todayStr, TYPE_MORNING);
 
   var btnB = document.getElementById('checkinBogyu');
   var statusB = document.getElementById('statusBogyu');
-  if (todayData['\uBCF4\uADDC']) {
+  if (workoutData['\uBCF4\uADDC']) {
     statusB.textContent = '\u2705 완료';
     btnB.classList.add('done');
   } else {
@@ -610,13 +684,77 @@ function updateCheckinBtns() {
 
   var btnH = document.getElementById('checkinHyerim');
   var statusH = document.getElementById('statusHyerim');
-  if (todayData['\uD61C\uB9BC']) {
+  if (workoutData['\uD61C\uB9BC']) {
     statusH.textContent = '\u2705 완료';
     btnH.classList.add('done');
   } else {
     statusH.textContent = '\uD83D\uDCF8 인증하기';
     btnH.classList.remove('done');
   }
+
+  updateMorningBtn('\uBCF4\uADDC', 'morningBogyu', 'statusMorningBogyu', morningData);
+  updateMorningBtn('\uD61C\uB9BC', 'morningHyerim', 'statusMorningHyerim', morningData);
+}
+
+function updateMorningBtn(userName, btnId, statusId, morningData) {
+  var btn = document.getElementById(btnId);
+  var status = document.getElementById(statusId);
+  btn.classList.remove('done', 'disabled');
+
+  if (morningData[userName]) {
+    status.textContent = '\u2705 완료';
+    btn.classList.add('done');
+    return;
+  }
+
+  var state = getMorningState(userName, new Date());
+  if (!state.allowed) {
+    status.textContent = state.reason;
+    btn.classList.add('disabled');
+    return;
+  }
+
+  status.textContent = userName === '\uBCF4\uADDC'
+    ? '11시 전 · 야외 · 평일 4회'
+    : '9시 전 · 사무실 · 평2+주2';
+}
+
+function getTypeData(dateStr, type) {
+  var dayData = checkinData[dateStr] || {};
+  return dayData[type] || {};
+}
+
+function getMorningState(userName, now) {
+  var dow = now.getDay(); // 일=0, 월=1, ... 토=6
+  var hour = now.getHours();
+  var minute = now.getMinutes();
+  var minutes = hour * 60 + minute;
+
+  if (userName === '\uBCF4\uADDC') {
+    if (dow === 0 || dow === 6) return { allowed: false, reason: '평일만' };
+    if (minutes >= 11 * 60) return { allowed: false, reason: '11시 지남' };
+    return { allowed: true, reason: '' };
+  }
+
+  if (minutes >= 9 * 60) return { allowed: false, reason: '9시 지남' };
+  return { allowed: true, reason: '' };
+}
+
+function renderCalendarMarks(dayData) {
+  var workout = dayData[TYPE_WORKOUT] || {};
+  var morning = dayData[TYPE_MORNING] || {};
+  return '<div class="marks">'
+    + renderMarkRow('\uD83D\uDCAA', workout)
+    + renderMarkRow('\uD83C\uDF05', morning)
+    + '</div>';
+}
+
+function renderMarkRow(label, data) {
+  var bOn = data['\uBCF4\uADDC'] ? ' on' : '';
+  var hOn = data['\uD61C\uB9BC'] ? ' on' : '';
+  return '<div class="mark-row"><span class="mark-type">' + label + '</span>'
+    + '<span class="mark-name bogyu' + bOn + '">\uBCF4</span>'
+    + '<span class="mark-name hyerim' + hOn + '">\uD61C</span></div>';
 }
 
 // ============================================
@@ -643,11 +781,8 @@ function renderCalendar() {
     var prevDateObj = new Date(year, month - 1, prevD);
     var prevDateStr = formatDate(prevDateObj);
     var prevDayData = checkinData[prevDateStr] || {};
-    var prevDots = '';
-    if (prevDayData['\uBCF4\uADDC']) prevDots += '<div class="dot bogyu"></div>';
-    if (prevDayData['\uD61C\uB9BC']) prevDots += '<div class="dot hyerim"></div>';
     html += '<div class="cal-day other-month" data-date="' + prevDateStr + '">';
-    html += '<span>' + prevD + '</span><div class="dots">' + prevDots + '</div></div>';
+    html += '<span class="day-num">' + prevD + '</span>' + renderCalendarMarks(prevDayData) + '</div>';
   }
 
   // 현재 달 날짜
@@ -658,11 +793,7 @@ function renderCalendar() {
     var isFuture = dateObj > today;
 
     var dayData = checkinData[dateStr] || {};
-    var dots = '';
-    if (!isFuture) {
-      if (dayData['\uBCF4\uADDC']) dots += '<div class="dot bogyu"></div>';
-      if (dayData['\uD61C\uB9BC']) dots += '<div class="dot hyerim"></div>';
-    }
+    var marks = !isFuture ? renderCalendarMarks(dayData) : '';
 
     var cls = 'cal-day';
     if (isToday) cls += ' today';
@@ -673,7 +804,7 @@ function renderCalendar() {
     } else {
       html += '<div class="' + cls + '">';
     }
-    html += '<span>' + d + '</span><div class="dots">' + dots + '</div></div>';
+    html += '<span class="day-num">' + d + '</span>' + marks + '</div>';
   }
 
   // 다음 달 날짜 (주 완성)
@@ -683,12 +814,8 @@ function renderCalendar() {
     var nextDateObj = new Date(year, month + 1, t);
     var nextDateStr = formatDate(nextDateObj);
     var nextDayData = checkinData[nextDateStr] || {};
-    var nextDots = '';
     var nextIsFuture = nextDateObj > today;
-    if (!nextIsFuture) {
-      if (nextDayData['\uBCF4\uADDC']) nextDots += '<div class="dot bogyu"></div>';
-      if (nextDayData['\uD61C\uB9BC']) nextDots += '<div class="dot hyerim"></div>';
-    }
+    var nextMarks = !nextIsFuture ? renderCalendarMarks(nextDayData) : '';
     var nextCls = 'cal-day other-month';
     if (nextDateStr === todayStr) nextCls += ' today';
     if (nextIsFuture) nextCls += ' future';
@@ -697,7 +824,7 @@ function renderCalendar() {
     } else {
       html += '<div class="' + nextCls + '">';
     }
-    html += '<span>' + t + '</span><div class="dots">' + nextDots + '</div></div>';
+    html += '<span class="day-num">' + t + '</span>' + nextMarks + '</div>';
   }
 
   document.getElementById('calGrid').innerHTML = html;
@@ -710,26 +837,47 @@ function renderPenalty() {
   var year = currentMonth.getFullYear();
   var month = currentMonth.getMonth();
   var today = new Date();
-  var bogyuMisses = 0;
-  var hyerimMisses = 0;
+  var bogyuWorkoutMisses = 0;
+  var hyerimWorkoutMisses = 0;
+  var bogyuMorningMisses = 0;
+  var hyerimMorningMisses = 0;
   var weeks = getCompletedWeeks(year, month, today);
 
   weeks.forEach(function(week) {
     var bc = 0, hc = 0;
+    var bm = 0, hmWeekday = 0, hmWeekend = 0;
     week.forEach(function(dateStr) {
-      var dayData = checkinData[dateStr] || {};
-      if (dayData['\uBCF4\uADDC']) bc++;
-      if (dayData['\uD61C\uB9BC']) hc++;
+      var workout = getTypeData(dateStr, TYPE_WORKOUT);
+      var morning = getTypeData(dateStr, TYPE_MORNING);
+      if (workout['\uBCF4\uADDC']) bc++;
+      if (workout['\uD61C\uB9BC']) hc++;
+
+      var d = new Date(dateStr + 'T00:00:00');
+      var dow = d.getDay();
+      var isWeekend = dow === 0 || dow === 6;
+      if (!isWeekend && morning['\uBCF4\uADDC']) bm++;
+      if (morning['\uD61C\uB9BC']) {
+        if (isWeekend) hmWeekend++;
+        else hmWeekday++;
+      }
     });
-    bogyuMisses += Math.max(0, WEEKLY_TARGET_BOGYU - bc);
-    hyerimMisses += Math.max(0, WEEKLY_TARGET_HYERIM - hc);
+    bogyuWorkoutMisses += Math.max(0, WEEKLY_TARGET_BOGYU - bc);
+    hyerimWorkoutMisses += Math.max(0, WEEKLY_TARGET_HYERIM - hc);
+    bogyuMorningMisses += Math.max(0, 4 - bm);
+    hyerimMorningMisses += getHyerimMorningMisses(hmWeekday, hmWeekend);
   });
 
+  var bogyuMisses = bogyuWorkoutMisses + bogyuMorningMisses;
+  var hyerimMisses = hyerimWorkoutMisses + hyerimMorningMisses;
   var bp = bogyuMisses * PENALTY_PER_MISS;
   var hp = hyerimMisses * PENALTY_PER_MISS;
 
-  document.getElementById('bogyuMiss').textContent = bogyuMisses > 0 ? '(' + bogyuMisses + '\uD68C \uBBF8\uB2EC)' : '(\uC644\uBCBD!)';
-  document.getElementById('hyerimMiss').textContent = hyerimMisses > 0 ? '(' + hyerimMisses + '\uD68C \uBBF8\uB2EC)' : '(\uC644\uBCBD!)';
+  document.getElementById('bogyuMiss').textContent = bogyuMisses > 0
+    ? '(운동 ' + bogyuWorkoutMisses + '회 · 아침 ' + bogyuMorningMisses + '회 미달)'
+    : '(\uC644\uBCBD!)';
+  document.getElementById('hyerimMiss').textContent = hyerimMisses > 0
+    ? '(운동 ' + hyerimWorkoutMisses + '회 · 아침 ' + hyerimMorningMisses + '회 미달)'
+    : '(\uC644\uBCBD!)';
 
   var bEl = document.getElementById('bogyuPenalty');
   bEl.textContent = formatMoney(bp);
@@ -748,6 +896,12 @@ function renderPenalty() {
   } else {
     totalEl.innerHTML = '<strong>\uB3D9\uC810! \uC815\uC0B0 \uC5C6\uC74C \uD83D\uDC4F</strong>';
   }
+}
+
+function getHyerimMorningMisses(weekdayCount, weekendCount) {
+  var normalMisses = Math.max(0, 2 - weekdayCount) + Math.max(0, 2 - weekendCount);
+  var fallbackMisses = Math.max(0, 4 - weekdayCount);
+  return Math.min(normalMisses, fallbackMisses);
 }
 
 function getCompletedWeeks(year, month, today) {
@@ -797,34 +951,59 @@ function renderWeekProgress() {
   startOfWeek.setDate(today.getDate() - daysSinceMonday);
 
   var bc = 0, hc = 0;
+  var bm = 0, hmWeekday = 0, hmWeekend = 0;
   for (var i = 0; i <= daysSinceMonday; i++) {
     var d = new Date(startOfWeek);
     d.setDate(startOfWeek.getDate() + i);
-    var dayData = checkinData[formatDate(d)] || {};
-    if (dayData['\uBCF4\uADDC']) bc++;
-    if (dayData['\uD61C\uB9BC']) hc++;
+    var dateStr = formatDate(d);
+    var workout = getTypeData(dateStr, TYPE_WORKOUT);
+    var morning = getTypeData(dateStr, TYPE_MORNING);
+    if (workout['\uBCF4\uADDC']) bc++;
+    if (workout['\uD61C\uB9BC']) hc++;
+
+    var dow = d.getDay();
+    var isWeekend = dow === 0 || dow === 6;
+    if (!isWeekend && morning['\uBCF4\uADDC']) bm++;
+    if (morning['\uD61C\uB9BC']) {
+      if (isWeekend) hmWeekend++;
+      else hmWeekday++;
+    }
   }
 
   document.getElementById('bogyuWeekCount').textContent = bc + '/' + WEEKLY_TARGET_BOGYU;
   document.getElementById('hyerimWeekCount').textContent = hc + '/' + WEEKLY_TARGET_HYERIM;
   document.getElementById('bogyuBar').style.width = Math.min(100, (bc / WEEKLY_TARGET_BOGYU) * 100) + '%';
   document.getElementById('hyerimBar').style.width = Math.min(100, (hc / WEEKLY_TARGET_HYERIM) * 100) + '%';
+
+  document.getElementById('bogyuMorningWeekCount').textContent = bm + '/4';
+  document.getElementById('hyerimMorningWeekCount').textContent = '평' + hmWeekday + '/2 주' + hmWeekend + '/2';
+  document.getElementById('bogyuMorningBar').style.width = Math.min(100, (bm / 4) * 100) + '%';
+  document.getElementById('hyerimMorningBar').style.width = Math.min(100, ((4 - getHyerimMorningMisses(hmWeekday, hmWeekend)) / 4) * 100) + '%';
 }
 
 // ============================================
 // 인증 모달
 // ============================================
-function openCheckinModal(userName) {
+function openCheckinModal(userName, checkinType) {
   var todayStr = formatDate(new Date());
-  var todayData = checkinData[todayStr] || {};
+  var todayData = getTypeData(todayStr, checkinType);
   if (todayData[userName]) return;
+  if (checkinType === TYPE_MORNING) {
+    var state = getMorningState(userName, new Date());
+    if (!state.allowed) {
+      showDebug(userName + ' 아침 인증 불가: ' + state.reason);
+      return;
+    }
+  }
 
   currentUser = userName;
+  currentCheckinType = checkinType || TYPE_WORKOUT;
   selectedFile = null;
   document.getElementById('photoInput').value = '';
   document.getElementById('uploadArea').innerHTML = '<p>\uD83D\uDCF7 \uC0AC\uC9C4\uC744 \uCCA8\uBD80\uD558\uAC70\uB098 \uC120\uD0DD\uD558\uC138\uC694</p>';
   document.getElementById('submitBtn').disabled = true;
-  document.getElementById('checkinTitle').textContent = '\uD83D\uDCF8 ' + userName + ' \uC6B4\uB3D9 \uC778\uC99D';
+  var typeLabel = currentCheckinType === TYPE_MORNING ? '아침 인증' : '운동 인증';
+  document.getElementById('checkinTitle').textContent = '\uD83D\uDCF8 ' + userName + ' ' + typeLabel;
   document.getElementById('checkinModal').classList.add('active');
 }
 
@@ -854,7 +1033,8 @@ async function submitCheckin() {
   try {
     var todayStr = formatDate(new Date());
     var safeUser = currentUser === '\uBCF4\uADDC' ? 'bogyu' : 'hyerim';
-    var fileName = safeUser + '/' + todayStr + '_' + Date.now() + '.jpg';
+    var safeType = currentCheckinType === TYPE_MORNING ? 'morning' : 'workout';
+    var fileName = safeType + '/' + safeUser + '/' + todayStr + '_' + Date.now() + '.jpg';
 
     var uploadResult = await supabaseClient.storage
       .from('photos')
@@ -866,13 +1046,26 @@ async function submitCheckin() {
       .from('photos')
       .getPublicUrl(fileName);
 
+    var payload = {
+      user_name: currentUser,
+      checkin_type: currentCheckinType,
+      photo_url: urlData.data.publicUrl,
+      checked_date: todayStr
+    };
+
     var insertResult = await supabaseClient
       .from('checkins')
-      .insert({
-        user_name: currentUser,
-        photo_url: urlData.data.publicUrl,
-        checked_date: todayStr
-      });
+      .insert(payload);
+
+    if (insertResult.error && isMissingCheckinTypeError(insertResult.error)) {
+      if (currentCheckinType === TYPE_MORNING) {
+        throw new Error('아침 인증용 DB 업데이트가 아직 필요합니다. supabase-migration-add-morning.sql을 먼저 실행해주세요.');
+      }
+      delete payload.checkin_type;
+      insertResult = await supabaseClient
+        .from('checkins')
+        .insert(payload);
+    }
 
     if (insertResult.error) throw insertResult.error;
 
@@ -897,18 +1090,29 @@ function viewDay(dateStr) {
   document.getElementById('photoViewTitle').textContent = parseInt(parts[1]) + '\uC6D4 ' + parseInt(parts[2]) + '\uC77C \uC778\uC99D';
 
   var html = '';
-  ['\uBCF4\uADDC', '\uD61C\uB9BC'].forEach(function(name) {
-    if (dayData[name]) {
-      var photoUrl = dayData[name].photo_url;
-      var cls = name === '\uBCF4\uADDC' ? 'bogyu' : 'hyerim';
-      html += '<div class="photo-card">';
-      if (photoUrl && photoUrl !== 'none' && photoUrl !== '') {
-        html += '<img src="' + photoUrl + '" alt="' + name + '" loading="lazy">';
+  [
+    { type: TYPE_WORKOUT, label: '\uD83D\uDCAA 운동' },
+    { type: TYPE_MORNING, label: '\uD83C\uDF05 아침' }
+  ].forEach(function(group) {
+    var typeData = dayData[group.type] || {};
+    var groupHtml = '';
+    ['\uBCF4\uADDC', '\uD61C\uB9BC'].forEach(function(name) {
+      if (typeData[name]) {
+        var photoUrl = typeData[name].photo_url;
+        var cls = name === '\uBCF4\uADDC' ? 'bogyu' : 'hyerim';
+        groupHtml += '<div class="photo-card">';
+        if (photoUrl && photoUrl !== 'none' && photoUrl !== '') {
+          groupHtml += '<img src="' + photoUrl + '" alt="' + name + '" loading="lazy">';
+        }
+        groupHtml += '<div class="info">';
+        groupHtml += '<span class="badge ' + cls + '">' + name + '</span>';
+        groupHtml += '<span style="color:#999;font-size:12px">' + new Date(typeData[name].created_at).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'}) + '</span>';
+        groupHtml += '</div></div>';
       }
-      html += '<div class="info">';
-      html += '<span class="badge ' + cls + '">' + name + '</span>';
-      html += '<span style="color:#999;font-size:12px">' + new Date(dayData[name].created_at).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'}) + '</span>';
-      html += '</div></div>';
+    });
+
+    if (groupHtml) {
+      html += '<h4 style="margin:8px 0 0;color:#ccc;font-size:14px">' + group.label + '</h4>' + groupHtml;
     }
   });
 
@@ -932,6 +1136,12 @@ function formatMoney(amount) {
   return (amount / 10000) + '\uB9CC\uC6D0';
 }
 
+function isMissingCheckinTypeError(error) {
+  var msg = ((error && error.message) || '').toLowerCase();
+  var details = ((error && error.details) || '').toLowerCase();
+  return (msg + ' ' + details).indexOf('checkin_type') !== -1;
+}
+
 // ============================================
 // 이벤트 바인딩
 // ============================================
@@ -939,10 +1149,16 @@ window.addEventListener('DOMContentLoaded', function() {
   if (!initSupabase()) return;
 
   document.getElementById('checkinBogyu').addEventListener('click', function() {
-    openCheckinModal('\uBCF4\uADDC');
+    openCheckinModal('\uBCF4\uADDC', TYPE_WORKOUT);
   });
   document.getElementById('checkinHyerim').addEventListener('click', function() {
-    openCheckinModal('\uD61C\uB9BC');
+    openCheckinModal('\uD61C\uB9BC', TYPE_WORKOUT);
+  });
+  document.getElementById('morningBogyu').addEventListener('click', function() {
+    openCheckinModal('\uBCF4\uADDC', TYPE_MORNING);
+  });
+  document.getElementById('morningHyerim').addEventListener('click', function() {
+    openCheckinModal('\uD61C\uB9BC', TYPE_MORNING);
   });
   document.getElementById('uploadArea').addEventListener('click', function() {
     document.getElementById('photoInput').click();

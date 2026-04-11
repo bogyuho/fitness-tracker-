@@ -7,16 +7,17 @@
 CREATE TABLE checkins (
   id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   user_name TEXT NOT NULL CHECK (user_name IN ('보규', '혜림')),
+  checkin_type TEXT NOT NULL DEFAULT 'workout' CHECK (checkin_type IN ('workout', 'morning')),
   photo_url TEXT NOT NULL,
   memo TEXT DEFAULT '',
   checked_date DATE NOT NULL DEFAULT CURRENT_DATE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(user_name, checked_date)  -- 하루에 한 번만 인증
+  UNIQUE(user_name, checked_date, checkin_type)  -- 인증 종류별 하루에 한 번
 );
 
 -- 2. 인덱스
 CREATE INDEX idx_checkins_date ON checkins(checked_date);
-CREATE INDEX idx_checkins_user ON checkins(user_name, checked_date);
+CREATE INDEX idx_checkins_user ON checkins(user_name, checked_date, checkin_type);
 
 -- 3. RLS (Row Level Security) - 공개 읽기/쓰기 (2명만 쓰니까)
 ALTER TABLE checkins ENABLE ROW LEVEL SECURITY;
