@@ -25,7 +25,9 @@
       --text: #F5F5F7;
       --text2: #98989D;
       --radius: 20px;
-      --gap: 20px;
+      --gap: 8px;
+      --card-pad-x: 12px;
+      --calendar-pad-x: 4px;
     }
 
     body {
@@ -117,8 +119,8 @@
 
     /* 주간 진행률 */
     .week-progress {
-      margin: 0 10px;
-      padding: 14px 10px 16px;
+      margin: 0 var(--gap);
+      padding: 14px var(--card-pad-x) 16px;
       background: var(--card);
       border-radius: var(--radius);
     }
@@ -160,7 +162,7 @@
     /* 벌금 카드 */
     .penalty-card {
       margin: 0 var(--gap);
-      padding: 20px;
+      padding: 16px var(--card-pad-x);
       background: var(--card);
       border-radius: var(--radius);
     }
@@ -205,8 +207,8 @@
 
     /* 달력 */
     .calendar-section {
-      margin: 0 4px;
-      padding: 10px 4px;
+      margin: 0 var(--gap);
+      padding: 10px var(--calendar-pad-x);
       background: var(--card);
       border-radius: var(--radius);
     }
