@@ -1863,7 +1863,7 @@ function requestLocation(options) {
 
 function formatLocationText(pos) {
   var c = pos.coords;
-  return '\uC704\uCE58 ' + c.latitude.toFixed(5) + ', ' + c.longitude.toFixed(5) + ' \u00B1' + Math.round(c.accuracy) + 'm';
+  return '\uB300\uB7B5 \uC704\uCE58 ' + c.latitude.toFixed(2) + ', ' + c.longitude.toFixed(2) + ' \uBD80\uADFC \u00B7 \u00B1' + Math.round(c.accuracy) + 'm';
 }
 
 function getLocationErrorText(err) {
