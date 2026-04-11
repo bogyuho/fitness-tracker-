@@ -911,6 +911,7 @@ var TYPE_WORKOUT = 'workout';
 var TYPE_MORNING = 'morning';
 var TYPE_TODO = 'todo';
 var TODO_PENALTY_PER_MISS = 100000;
+var WEEKLY_PENALTY_CUTOFF_HOUR = 23;
 
 // ============================================
 // 인앱 브라우저 감지
@@ -1466,7 +1467,9 @@ function getCompletedWeeks(year, month, today) {
       // 주의 월요일이 해당 월에 속하면 이 달의 벌금으로 카운트
       var weekMonday = new Date(d);
       weekMonday.setDate(d.getDate() - 6);
-      if (weekMonday.getMonth() === month && currentWeek.length >= 7 && d <= today && d >= appStart) {
+      var weekPenaltyCutoff = new Date(d);
+      weekPenaltyCutoff.setHours(WEEKLY_PENALTY_CUTOFF_HOUR, 0, 0, 0);
+      if (weekMonday.getMonth() === month && currentWeek.length >= 7 && today >= weekPenaltyCutoff && d >= appStart) {
         weeks.push(currentWeek.slice());
       }
       currentWeek = [];
