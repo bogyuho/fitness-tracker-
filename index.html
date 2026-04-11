@@ -442,7 +442,7 @@
   </button>
 </div>
 
-<div class="checkin-label">🌅 아침 인증</div>
+<div class="checkin-label">🌞 아침 인증</div>
 <div class="checkin-section">
   <button class="checkin-card morning bogyu" id="morningBogyu">
     <div class="card-name">보규</div>
@@ -495,7 +495,7 @@
 <div class="section-gap"></div>
 
 <div class="week-progress">
-  <h3>🌅 이번 주 아침 진행률</h3>
+  <h3>🌞 이번 주 아침 진행률</h3>
   <div class="progress-person">
     <div class="label">
       <span>보규 (11시 전 야외 · 평일 4회)</span>
@@ -728,7 +728,7 @@ function renderCalendarMarks(dayData) {
   var morning = dayData[TYPE_MORNING] || {};
   return '<div class="marks">'
     + renderMarkRow('\uD83D\uDCAA', workout)
-    + renderMarkRow('\uD83C\uDF05', morning)
+    + renderMarkRow('\uD83C\uDF1E', morning)
     + '</div>';
 }
 
@@ -1078,7 +1078,7 @@ function viewDay(dateStr) {
   var html = '';
   [
     { type: TYPE_WORKOUT, label: '\uD83D\uDCAA 운동' },
-    { type: TYPE_MORNING, label: '\uD83C\uDF05 아침' }
+    { type: TYPE_MORNING, label: '\uD83C\uDF1E 아침' }
   ].forEach(function(group) {
     var typeData = dayData[group.type] || {};
     var groupHtml = '';
