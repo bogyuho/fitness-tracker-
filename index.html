@@ -1010,7 +1010,7 @@ function updateTodoBtn(userName, statusId, dateStr) {
   var summary = getTodoSummary(dateStr, userName);
   var status = document.getElementById(statusId);
   if (!status) return;
-  status.textContent = summary.total ? summary.done + '/' + summary.total : '\uCD94\uAC00';
+  status.textContent = summary.total ? '\uC624\uB298 ' + summary.done + '/' + summary.total : '';
 }
 
 function updateMorningBtn(userName, btnId, statusId, morningData) {
@@ -1072,8 +1072,12 @@ function getActiveTodos(dateStr, userName) {
 
 function canCancelTodo(item) {
   if (!item || item.proof_photo_url || item.cancelled_at) return false;
-  if (item.todo_date > formatDate(new Date())) return true;
+  if (isFutureTodo(item)) return true;
   return (Date.now() - new Date(item.created_at).getTime()) <= 5 * 60 * 1000;
+}
+
+function isFutureTodo(item) {
+  return item && item.todo_date > formatDate(new Date());
 }
 
 function parseLocalDate(dateStr) {
@@ -1534,13 +1538,13 @@ function getTodoStateIcon(item) {
 function getTodoMetaText(item) {
   if (item.cancelled_at) return '\uCDE8\uC18C\uB428 \u00B7 \uBC8C\uAE08 \uC81C\uC678';
   if (item.proof_photo_url) return formatTodoTime(item.completed_at) + ' \uC778\uC99D';
-  if (item.todo_date > formatDate(new Date())) return '\uC608\uC815 \u00B7 \uBBF8\uB798 \uCDE8\uC18C \uAC00\uB2A5';
+  if (isFutureTodo(item)) return '\uC608\uC815 \u00B7 \uBBF8\uB798 \uCDE8\uC18C \uAC00\uB2A5';
   if (canCancelTodo(item)) return '5\uBD84 \uC774\uB0B4 \uC2E4\uC218 \uCDE8\uC18C \uAC00\uB2A5';
   return '\uBBF8\uC644\uB8CC';
 }
 
 function getTodoCancelLabel(item) {
-  return item.todo_date > formatDate(new Date()) ? '\uCDE8\uC18C' : '5\uBD84 \uCDE8\uC18C';
+  return isFutureTodo(item) ? '\uCDE8\uC18C' : '5\uBD84 \uCDE8\uC18C';
 }
 
 function findTodoItem(todoId) {
@@ -1559,7 +1563,46 @@ function findTodoItem(todoId) {
 async function cancelTodoItem(todoId) {
   var item = findTodoItem(todoId);
   if (!item || !canCancelTodo(item)) return;
-  var isFuture = item.todo_date > formatDate(new Date());
+  var isFuture = isFutureTodo(item);
+  var cancelMode = getTodoCancelMode(item, isFuture);
+  if (!cancelMode) return;
+
+  if (cancelMode === 'series') {
+    var templateResult = await supabaseClient
+      .from('todo_templates')
+      .update({ is_active: false })
+      .eq('id', item.template_id);
+    if (templateResult.error) {
+      console.error('Todo template cancel error:', templateResult.error);
+      showDebug('\uBC18\uBCF5 \uD22C\uB450 \uCDE8\uC18C \uC624\uB958');
+      return;
+    }
+
+    var seriesResult = await supabaseClient
+      .from('todo_items')
+      .update({
+        cancelled_at: new Date().toISOString(),
+        cancel_reason: 'recurring_cancel_from_date'
+      })
+      .eq('template_id', item.template_id)
+      .gte('todo_date', item.todo_date)
+      .is('proof_photo_url', null)
+      .is('cancelled_at', null);
+
+    if (seriesResult.error) {
+      console.error('Todo series cancel error:', seriesResult.error);
+      showDebug('\uBC18\uBCF5 \uD22C\uB450 \uCDE8\uC18C \uC624\uB958');
+      return;
+    }
+
+    await loadData();
+    renderTodoModal();
+    if (document.getElementById('photoViewModal').classList.contains('active') && currentViewedDate) {
+      viewDay(currentViewedDate);
+    }
+    return;
+  }
+
   var confirmText = isFuture
     ? '\uBBF8\uB798 \uD22C\uB450\uB97C \uCDE8\uC18C\uD560\uAE4C\uC694?'
     : '\uC774 \uD22C\uB450\uB97C \uC2E4\uC218 \uCDE8\uC18C\uD560\uAE4C\uC694?';
@@ -1584,6 +1627,17 @@ async function cancelTodoItem(todoId) {
   if (document.getElementById('photoViewModal').classList.contains('active') && currentViewedDate) {
     viewDay(currentViewedDate);
   }
+}
+
+function getTodoCancelMode(item, isFuture) {
+  if (!item.template_id) return 'single';
+  var message = isFuture
+    ? '\uBC18\uBCF5 \uD22C\uB450\uC785\uB2C8\uB2E4. \uCDE8\uC18C \uBC94\uC704\uB97C \uC120\uD0DD\uD574\uC8FC\uC138\uC694.\\n1: \uC774 \uB0A0\uC9DC\uB9CC \uCDE8\uC18C\\n2: \uC774 \uB0A0\uC9DC\uBD80\uD130 \uBC18\uBCF5 \uB044\uAE30'
+    : '\uBC18\uBCF5 \uD22C\uB450\uC785\uB2C8\uB2E4.\\n1: \uC624\uB298\uB9CC 5\uBD84 \uCDE8\uC18C\\n2: \uC624\uB298\uBD80\uD130 \uBC18\uBCF5 \uB044\uAE30';
+  var choice = prompt(message, '1');
+  if (choice === '1') return 'single';
+  if (choice === '2') return 'series';
+  return null;
 }
 
 function getTodoDatesForScope(scope, weekdays) {
