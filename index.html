@@ -1116,6 +1116,13 @@ function renderTodoMarkRow(dateStr) {
   return '<div class="mark-row todo-mark-row">' + parts.join('') + '</div>';
 }
 
+function renderFutureTodoMarks(dateStr) {
+  var b = getTodoSummary(dateStr, '\uBCF4\uADDC');
+  var h = getTodoSummary(dateStr, '\uD61C\uB9BC');
+  if (!b.total && !h.total) return '';
+  return '<div class="marks">' + renderTodoMarkRow(dateStr) + '</div>';
+}
+
 function renderMarkRow(label, data) {
   var bOn = data['\uBCF4\uADDC'] ? ' on' : '';
   var hOn = data['\uD61C\uB9BC'] ? ' on' : '';
@@ -1160,7 +1167,7 @@ function renderCalendar() {
     var isFuture = dateObj > today;
 
     var dayData = checkinData[dateStr] || {};
-    var marks = !isFuture ? renderCalendarMarks(dayData, dateStr) : '';
+    var marks = isFuture ? renderFutureTodoMarks(dateStr) : renderCalendarMarks(dayData, dateStr);
 
     var cls = 'cal-day';
     if (isToday) cls += ' today';
@@ -1182,7 +1189,7 @@ function renderCalendar() {
     var nextDateStr = formatDate(nextDateObj);
     var nextDayData = checkinData[nextDateStr] || {};
     var nextIsFuture = nextDateObj > today;
-    var nextMarks = !nextIsFuture ? renderCalendarMarks(nextDayData, nextDateStr) : '';
+    var nextMarks = nextIsFuture ? renderFutureTodoMarks(nextDateStr) : renderCalendarMarks(nextDayData, nextDateStr);
     var nextCls = 'cal-day other-month';
     if (nextDateStr === todayStr) nextCls += ' today';
     if (nextIsFuture) nextCls += ' future';
