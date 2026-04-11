@@ -525,7 +525,7 @@
   </div>
   <div class="progress-person">
     <div class="label">
-      <span>혜림 (9시 전 사무실 · 평2+주2)</span>
+      <span>혜림 (9시 전 사무실 · 평2+주2 or 평4)</span>
       <span id="hyerimMorningWeekCount">평0/2 주0/2</span>
     </div>
     <div class="progress-bar"><div class="fill hyerim" id="hyerimMorningBar" style="width:0%"></div></div>
@@ -735,7 +735,7 @@ function updateMorningBtn(userName, btnId, statusId, morningData) {
 
   status.textContent = userName === '\uBCF4\uADDC'
     ? '11시 전 · 야외'
-    : '9시 전 · 사무실';
+    : '9시 전 · 사무실 · 평2+주2 or 평4';
 }
 
 function getTypeData(dateStr, type) {
