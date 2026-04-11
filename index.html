@@ -430,29 +430,32 @@
 
     .todo-mark-row {
       justify-content: flex-start;
-      gap: 1px;
-      font-size: 7px;
-      letter-spacing: -0.5px;
+      gap: 2px;
+      font-size: 8px;
+      letter-spacing: -0.45px;
     }
 
     .todo-mark-row .todo-empty { opacity: 0.25; }
     .todo-count {
+      display: inline-flex;
+      align-items: center;
       min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
       border-radius: 999px;
-      padding: 2px;
-      font-weight: 800;
+      padding: 2px 3px;
+      font-weight: 900;
+      line-height: 1;
     }
     .todo-mark-row .todo-count.bogyu {
-      color: #C7D2FE;
-      background: rgba(99,102,241,0.14);
-      border: 1px solid rgba(129,140,248,0.18);
+      color: #EEF2FF;
+      background: rgba(99,102,241,0.62);
+      border: 1px solid rgba(199,210,254,0.45);
     }
     .todo-mark-row .todo-count.hyerim {
-      color: #FFE4E6;
-      background: rgba(244,63,94,0.14);
-      border: 1px solid rgba(251,113,133,0.18);
+      color: #FFF1F2;
+      background: rgba(244,63,94,0.62);
+      border: 1px solid rgba(255,228,230,0.45);
     }
 
     /* 모달 */
@@ -1385,8 +1388,8 @@ function renderTodoMarkRow(dateStr) {
   var h = getTodoSummary(dateStr, '\uD61C\uB9BC');
   if (!b.total && !h.total) return '';
   var parts = [];
-  if (b.total) parts.push('<span class="todo-count bogyu">B' + b.done + '/' + b.total + '</span>');
-  if (h.total) parts.push('<span class="todo-count hyerim">H' + h.done + '/' + h.total + '</span>');
+  if (b.total) parts.push('<span class="todo-count bogyu">\uBCF4' + b.done + '/' + b.total + '</span>');
+  if (h.total) parts.push('<span class="todo-count hyerim">\uD61C' + h.done + '/' + h.total + '</span>');
   return '<div class="mark-row todo-mark-row">' + parts.join('') + '</div>';
 }
 
