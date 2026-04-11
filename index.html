@@ -109,6 +109,13 @@
       opacity: 0.9;
     }
 
+    .checkin-card .card-status small {
+      display: block;
+      margin-top: 2px;
+      font-size: 10px;
+      opacity: 0.85;
+    }
+
     .checkin-card.done {
       opacity: 0.4;
       cursor: default;
@@ -469,7 +476,7 @@
     </button>
     <button class="checkin-card hyerim" id="morningHyerim">
       <div class="card-name">🌞 아침</div>
-      <div class="card-status" id="statusMorningHyerim">9시 전 · 사무실</div>
+      <div class="card-status" id="statusMorningHyerim">9시 전 · 사무실<small>평2+주2 or 평4</small></div>
     </button>
   </div>
 </div>
@@ -735,7 +742,10 @@ function updateMorningBtn(userName, btnId, statusId, morningData) {
 
   status.textContent = userName === '\uBCF4\uADDC'
     ? '11시 전 · 야외'
-    : '9시 전 · 사무실 · 평2+주2 or 평4';
+    : '';
+  if (userName === '\uD61C\uB9BC') {
+    status.innerHTML = '9시 전 · 사무실<small>평2+주2 or 평4</small>';
+  }
 }
 
 function getTypeData(dateStr, type) {
