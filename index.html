@@ -1561,7 +1561,7 @@ function openTodoProofModal(todoId) {
   selectedFile = null;
   var photoInput = document.getElementById('photoInput');
   photoInput.value = '';
-  photoInput.removeAttribute('capture');
+  photoInput.setAttribute('capture', 'environment');
   document.getElementById('uploadArea').innerHTML = '<p>\uD83D\uDCF7 \uD22C\uB450 \uC778\uC99D \uC0AC\uC9C4\uC744 \uC120\uD0DD\uD558\uC138\uC694</p>';
   document.getElementById('submitBtn').disabled = true;
   document.getElementById('submitBtn').textContent = '\uC778\uC99D\uD558\uAE30';
@@ -1609,7 +1609,7 @@ function openCheckinModal(userName, checkinType) {
   selectedFile = null;
   var photoInput = document.getElementById('photoInput');
   photoInput.value = '';
-  photoInput.removeAttribute('capture');
+  photoInput.setAttribute('capture', 'environment');
   document.getElementById('uploadArea').innerHTML = '<p>\uD83D\uDCF7 \uC0AC\uC9C4\uC744 \uCCA8\uBD80\uD558\uAC70\uB098 \uC120\uD0DD\uD558\uC138\uC694</p>';
   document.getElementById('submitBtn').disabled = true;
   document.getElementById('submitBtn').textContent = '\uC778\uC99D\uD558\uAE30';
