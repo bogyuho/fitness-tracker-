@@ -55,9 +55,9 @@
 
     .checkin-row {
       display: grid;
-      grid-template-columns: 68px 1fr 1fr;
+      grid-template-columns: 58px 1fr 1fr 1fr;
       align-items: stretch;
-      gap: 10px;
+      gap: 8px;
       min-height: 72px;
     }
 
@@ -322,6 +322,17 @@
     .mark-name.bogyu.on { color: #A5B4FC; }
     .mark-name.hyerim.on { color: #FDA4AF; }
 
+    .todo-mark-row {
+      justify-content: center;
+      gap: 2px;
+      font-size: 7px;
+      letter-spacing: -0.4px;
+    }
+
+    .todo-mark-row .todo-empty { opacity: 0.25; }
+    .todo-mark-row .todo-count.bogyu { color: #A5B4FC; font-weight: 700; }
+    .todo-mark-row .todo-count.hyerim { color: #FDA4AF; font-weight: 700; }
+
     /* 모달 */
     .modal-overlay {
       display: none;
@@ -383,6 +394,152 @@
     .btn-cancel { background: #333; color: var(--text); }
     .btn-submit { background: var(--accent); color: white; }
     .btn-submit:disabled { background: #555; color: #888; }
+
+    .todo-input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .todo-input-row input {
+      flex: 1;
+      min-width: 0;
+      background: #111;
+      color: var(--text);
+      border: 1px solid var(--card2);
+      border-radius: 12px;
+      padding: 12px;
+      font-family: inherit;
+      font-size: 15px;
+    }
+
+    .todo-input-row button {
+      border: none;
+      border-radius: 12px;
+      padding: 0 14px;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .todo-summary {
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      color: var(--text2);
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .todo-contract {
+      margin-bottom: 12px;
+      color: #FDE68A;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .todo-options {
+      margin-bottom: 14px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .todo-options-title {
+      margin-bottom: 8px;
+      color: var(--text2);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .todo-scope-row,
+    .todo-weekday-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .todo-scope {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 9px;
+      border-radius: 999px;
+      background: #111;
+      color: var(--text);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .todo-weekday {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 10px;
+      background: #111;
+      color: var(--text2);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .todo-weekday.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .todo-repeat-hint {
+      margin-top: 8px;
+      color: var(--text2);
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .todo-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .todo-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border-radius: 14px;
+      background: #111;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .todo-item.done { opacity: 0.82; }
+
+    .todo-title {
+      font-size: 14px;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .todo-meta {
+      margin-top: 4px;
+      color: var(--text2);
+      font-size: 11px;
+    }
+
+    .todo-proof-btn {
+      border: none;
+      border-radius: 10px;
+      padding: 9px 10px;
+      background: var(--card2);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
 
     /* 사진 보기 모달 */
     .photo-view-modal .photos-grid {
@@ -476,6 +633,10 @@
       <div class="card-name">🌞 아침</div>
       <div class="card-status" id="statusMorningBogyu">11시 전 · 야외</div>
     </button>
+    <button class="checkin-card bogyu" id="todoBogyu">
+      <div class="card-name">&#9989; 투두</div>
+      <div class="card-status" id="statusTodoBogyu">추가</div>
+    </button>
   </div>
   <div class="checkin-row">
     <div class="row-name hyerim">혜림</div>
@@ -486,6 +647,10 @@
     <button class="checkin-card hyerim" id="morningHyerim">
       <div class="card-name">🌞 아침</div>
       <div class="card-status" id="statusMorningHyerim">9시 전 · 사무실<small>평2+주2 or 평4</small></div>
+    </button>
+    <button class="checkin-card hyerim" id="todoHyerim">
+      <div class="card-name">&#9989; 투두</div>
+      <div class="card-status" id="statusTodoHyerim">추가</div>
     </button>
   </div>
 </div>
@@ -570,6 +735,41 @@
 </div>
 
 <!-- 인증 모달 -->
+<div class="modal-overlay" id="todoModal">
+  <div class="modal">
+    <h3 id="todoTitle">투두</h3>
+    <div class="todo-summary" id="todoSummary"></div>
+    <div class="todo-contract">추가한 투두는 사진 인증 전까지 미완료입니다. 미완료 1개당 10만원.</div>
+    <div class="todo-input-row">
+      <input type="text" id="todoInput" placeholder="오늘 할 일 추가">
+      <button id="todoAddBtn">추가</button>
+    </div>
+    <div class="todo-options">
+      <div class="todo-options-title">반복 범위</div>
+      <div class="todo-scope-row">
+        <label class="todo-scope"><input type="radio" name="todoScope" value="today" checked>오늘만</label>
+        <label class="todo-scope"><input type="radio" name="todoScope" value="this_week">이번 주만</label>
+        <label class="todo-scope"><input type="radio" name="todoScope" value="weekly">매주 반복</label>
+      </div>
+      <div class="todo-options-title" style="margin-top:12px">요일 선택</div>
+      <div class="todo-weekday-row" id="todoWeekdays">
+        <button type="button" class="todo-weekday" data-dow="1">월</button>
+        <button type="button" class="todo-weekday" data-dow="2">화</button>
+        <button type="button" class="todo-weekday" data-dow="3">수</button>
+        <button type="button" class="todo-weekday" data-dow="4">목</button>
+        <button type="button" class="todo-weekday" data-dow="5">금</button>
+        <button type="button" class="todo-weekday" data-dow="6">토</button>
+        <button type="button" class="todo-weekday" data-dow="0">일</button>
+      </div>
+      <div class="todo-repeat-hint" id="todoRepeatHint">오늘만 추가됩니다.</div>
+    </div>
+    <div class="todo-list" id="todoList"></div>
+    <div style="margin-top:16px">
+      <button class="btn-cancel" style="width:100%;padding:14px;border:none;border-radius:12px" id="closeTodoBtn">닫기</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="checkinModal">
   <div class="modal">
     <h3 id="checkinTitle">📸 운동 인증</h3>
@@ -611,6 +811,8 @@ var APP_START_DATE = '2026-02-24';
 var MORNING_START_DATE = '2026-04-13';
 var TYPE_WORKOUT = 'workout';
 var TYPE_MORNING = 'morning';
+var TYPE_TODO = 'todo';
+var TODO_PENALTY_PER_MISS = 100000;
 
 // ============================================
 // 인앱 브라우저 감지
@@ -640,8 +842,12 @@ var TYPE_MORNING = 'morning';
 var supabaseClient = null;
 var currentUser = null;
 var currentCheckinType = TYPE_WORKOUT;
+var currentTodoUser = null;
+var currentTodoItem = null;
 var currentMonth = new Date();
 var checkinData = {};
+var todoData = {};
+var todoTemplates = [];
 var selectedFile = null;
 
 function showDebug(msg) {
@@ -700,6 +906,41 @@ async function loadData() {
     checkinData[row.checked_date][type][row.user_name] = row;
   });
 
+  todoData = {};
+  var todoResult = await supabaseClient
+    .from('todo_items')
+    .select('*')
+    .gte('todo_date', startDate)
+    .lte('todo_date', endDate)
+    .order('created_at');
+
+  if (todoResult.error) {
+    console.warn('Todo load error:', todoResult.error);
+    showDebug('\uD22C\uB450 SQL\uC744 \uBA3C\uC800 \uC2E4\uD589\uD574\uC57C \uD569\uB2C8\uB2E4: supabase-migration-add-todos.sql');
+  } else {
+    fillTodoData(todoResult.data || []);
+
+    todoTemplates = [];
+    var templateResult = await supabaseClient
+      .from('todo_templates')
+      .select('*')
+      .eq('is_active', true);
+    if (templateResult.error) {
+      console.warn('Todo template load error:', templateResult.error);
+    } else {
+      todoTemplates = templateResult.data || [];
+      if (await ensureRecurringTodos(startDate, endDate)) {
+        var refreshedTodos = await supabaseClient
+          .from('todo_items')
+          .select('*')
+          .gte('todo_date', startDate)
+          .lte('todo_date', endDate)
+          .order('created_at');
+        if (!refreshedTodos.error) fillTodoData(refreshedTodos.data || []);
+      }
+    }
+  }
+
   renderCalendar();
   renderPenalty();
   renderWeekProgress();
@@ -736,6 +977,15 @@ function updateCheckinBtns() {
 
   updateMorningBtn('\uBCF4\uADDC', 'morningBogyu', 'statusMorningBogyu', morningData);
   updateMorningBtn('\uD61C\uB9BC', 'morningHyerim', 'statusMorningHyerim', morningData);
+  updateTodoBtn('\uBCF4\uADDC', 'statusTodoBogyu', todayStr);
+  updateTodoBtn('\uD61C\uB9BC', 'statusTodoHyerim', todayStr);
+}
+
+function updateTodoBtn(userName, statusId, dateStr) {
+  var summary = getTodoSummary(dateStr, userName);
+  var status = document.getElementById(statusId);
+  if (!status) return;
+  status.textContent = summary.total ? summary.done + '/' + summary.total : '\uCD94\uAC00';
 }
 
 function updateMorningBtn(userName, btnId, statusId, morningData) {
@@ -762,13 +1012,109 @@ function getTypeData(dateStr, type) {
   return dayData[type] || {};
 }
 
-function renderCalendarMarks(dayData) {
+function fillTodoData(rows) {
+  todoData = {};
+  (rows || []).forEach(function(row) {
+    if (!todoData[row.todo_date]) {
+      todoData[row.todo_date] = {};
+    }
+    if (!todoData[row.todo_date][row.user_name]) {
+      todoData[row.todo_date][row.user_name] = [];
+    }
+    todoData[row.todo_date][row.user_name].push(row);
+  });
+}
+
+function getTodos(dateStr, userName) {
+  return ((todoData[dateStr] || {})[userName] || []);
+}
+
+function getTodoSummary(dateStr, userName) {
+  var items = getTodos(dateStr, userName);
+  var done = items.filter(function(item) { return !!item.proof_photo_url; }).length;
+  return { total: items.length, done: done, pending: items.length - done };
+}
+
+function parseLocalDate(dateStr) {
+  return new Date(dateStr + 'T00:00:00');
+}
+
+function addDays(dateObj, days) {
+  var d = new Date(dateObj);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
+function maxDateStr(a, b) {
+  return a > b ? a : b;
+}
+
+function minDateStr(a, b) {
+  return a < b ? a : b;
+}
+
+async function ensureRecurringTodos(startDate, endDate) {
+  if (!todoTemplates.length) return false;
+  var todayStr = formatDate(new Date());
+  var rows = [];
+
+  todoTemplates.forEach(function(template) {
+    var templateStart = maxDateStr(template.start_date || todayStr, todayStr);
+    var rangeStart = maxDateStr(startDate, templateStart);
+    var rangeEnd = endDate;
+    if (template.end_date) rangeEnd = minDateStr(rangeEnd, template.end_date);
+    if (rangeStart > rangeEnd) return;
+
+    for (var d = parseLocalDate(rangeStart); formatDate(d) <= rangeEnd; d = addDays(d, 1)) {
+      var dateStr = formatDate(d);
+      var weekdays = template.weekdays || [];
+      if (weekdays.indexOf(d.getDay()) === -1) continue;
+      var exists = getTodos(dateStr, template.user_name).some(function(item) {
+        return String(item.template_id || '') === String(template.id);
+      });
+      if (!exists) {
+        rows.push({
+          template_id: template.id,
+          user_name: template.user_name,
+          todo_date: dateStr,
+          title: template.title
+        });
+      }
+    }
+  });
+
+  if (!rows.length) return false;
+  var result = await supabaseClient
+    .from('todo_items')
+    .insert(rows);
+  if (result.error) {
+    console.warn('Recurring todo insert error:', result.error);
+    return false;
+  }
+  return true;
+}
+
+function renderCalendarMarks(dayData, dateStr) {
   var workout = dayData[TYPE_WORKOUT] || {};
   var morning = dayData[TYPE_MORNING] || {};
   return '<div class="marks">'
     + renderMarkRow('\uD83D\uDCAA', workout)
     + renderMarkRow('\uD83C\uDF1E', morning)
+    + renderTodoMarkRow(dateStr)
     + '</div>';
+}
+
+function renderTodoMarkRow(dateStr) {
+  if (!dateStr) {
+    return '<div class="mark-row todo-mark-row"><span class="mark-type">\u2705</span><span class="todo-empty">-</span></div>';
+  }
+  var b = getTodoSummary(dateStr, '\uBCF4\uADDC');
+  var h = getTodoSummary(dateStr, '\uD61C\uB9BC');
+  var parts = ['<span class="mark-type">\u2705</span>'];
+  if (b.total) parts.push('<span class="todo-count bogyu">\uBCF4 ' + b.done + '/' + b.total + '</span>');
+  if (h.total) parts.push('<span class="todo-count hyerim">\uD61C ' + h.done + '/' + h.total + '</span>');
+  if (parts.length === 1) parts.push('<span class="todo-empty">-</span>');
+  return '<div class="mark-row todo-mark-row">' + parts.join('') + '</div>';
 }
 
 function renderMarkRow(label, data) {
@@ -804,7 +1150,7 @@ function renderCalendar() {
     var prevDateStr = formatDate(prevDateObj);
     var prevDayData = checkinData[prevDateStr] || {};
     html += '<div class="cal-day other-month" data-date="' + prevDateStr + '">';
-    html += '<span class="day-num">' + prevD + '</span>' + renderCalendarMarks(prevDayData) + '</div>';
+    html += '<span class="day-num">' + prevD + '</span>' + renderCalendarMarks(prevDayData, prevDateStr) + '</div>';
   }
 
   // 현재 달 날짜
@@ -815,7 +1161,7 @@ function renderCalendar() {
     var isFuture = dateObj > today;
 
     var dayData = checkinData[dateStr] || {};
-    var marks = !isFuture ? renderCalendarMarks(dayData) : '';
+    var marks = !isFuture ? renderCalendarMarks(dayData, dateStr) : '';
 
     var cls = 'cal-day';
     if (isToday) cls += ' today';
@@ -837,7 +1183,7 @@ function renderCalendar() {
     var nextDateStr = formatDate(nextDateObj);
     var nextDayData = checkinData[nextDateStr] || {};
     var nextIsFuture = nextDateObj > today;
-    var nextMarks = !nextIsFuture ? renderCalendarMarks(nextDayData) : '';
+    var nextMarks = !nextIsFuture ? renderCalendarMarks(nextDayData, nextDateStr) : '';
     var nextCls = 'cal-day other-month';
     if (nextDateStr === todayStr) nextCls += ' today';
     if (nextIsFuture) nextCls += ' future';
@@ -863,7 +1209,10 @@ function renderPenalty() {
   var hyerimWorkoutMisses = 0;
   var bogyuMorningMisses = 0;
   var hyerimMorningMisses = 0;
+  var bogyuTodoMisses = 0;
+  var hyerimTodoMisses = 0;
   var weeks = getCompletedWeeks(year, month, today);
+  var todayStr = formatDate(today);
 
   weeks.forEach(function(week) {
     var bc = 0, hc = 0;
@@ -892,8 +1241,15 @@ function renderPenalty() {
     }
   });
 
-  var bogyuMisses = bogyuWorkoutMisses + bogyuMorningMisses;
-  var hyerimMisses = hyerimWorkoutMisses + hyerimMorningMisses;
+  Object.keys(todoData).forEach(function(dateStr) {
+    var d = new Date(dateStr + 'T00:00:00');
+    if (d.getMonth() !== month || dateStr >= todayStr) return;
+    bogyuTodoMisses += getTodoSummary(dateStr, '\uBCF4\uADDC').pending;
+    hyerimTodoMisses += getTodoSummary(dateStr, '\uD61C\uB9BC').pending;
+  });
+
+  var bogyuMisses = bogyuWorkoutMisses + bogyuMorningMisses + bogyuTodoMisses;
+  var hyerimMisses = hyerimWorkoutMisses + hyerimMorningMisses + hyerimTodoMisses;
   var bp = bogyuMisses * PENALTY_PER_MISS;
   var hp = hyerimMisses * PENALTY_PER_MISS;
 
@@ -903,6 +1259,13 @@ function renderPenalty() {
   document.getElementById('hyerimMiss').textContent = hyerimMisses > 0
     ? '(운동 ' + hyerimWorkoutMisses + '회 · 아침 ' + hyerimMorningMisses + '회 미달)'
     : '(\uC644\uBCBD!)';
+
+  if (bogyuMisses > 0) {
+    document.getElementById('bogyuMiss').textContent = '\uC6B4\uB3D9 ' + bogyuWorkoutMisses + '\uAC1C, \uC544\uCE68 ' + bogyuMorningMisses + '\uAC1C, \uD22C\uB450 ' + bogyuTodoMisses + '\uAC1C \uBBF8\uB2EC';
+  }
+  if (hyerimMisses > 0) {
+    document.getElementById('hyerimMiss').textContent = '\uC6B4\uB3D9 ' + hyerimWorkoutMisses + '\uAC1C, \uC544\uCE68 ' + hyerimMorningMisses + '\uAC1C, \uD22C\uB450 ' + hyerimTodoMisses + '\uAC1C \uBBF8\uB2EC';
+  }
 
   var bEl = document.getElementById('bogyuPenalty');
   bEl.textContent = formatMoney(bp);
@@ -1016,6 +1379,219 @@ function renderWeekProgress() {
 // ============================================
 // 인증 모달
 // ============================================
+function openTodoModal(userName) {
+  currentTodoUser = userName;
+  document.getElementById('todoTitle').textContent = userName + ' \uC624\uB298 \uD22C\uB450';
+  document.getElementById('todoInput').value = '';
+  setTodoScope('today');
+  setTodoWeekdays([new Date().getDay()]);
+  updateTodoRepeatUi();
+  renderTodoModal();
+  document.getElementById('todoModal').classList.add('active');
+}
+
+function closeTodoModal() {
+  document.getElementById('todoModal').classList.remove('active');
+}
+
+function renderTodoModal() {
+  if (!currentTodoUser) return;
+  var todayStr = formatDate(new Date());
+  var items = getTodos(todayStr, currentTodoUser);
+  var summary = getTodoSummary(todayStr, currentTodoUser);
+  var pendingPenalty = summary.pending * TODO_PENALTY_PER_MISS;
+  document.getElementById('todoSummary').innerHTML =
+    '<span>\uC9C4\uD589\uB960 ' + summary.done + '/' + summary.total + '</span>'
+    + '<span>\uC608\uC0C1 \uBC8C\uAE08 ' + formatMoney(pendingPenalty) + '</span>';
+
+  var html = '';
+  if (!items.length) {
+    html = '<p style="text-align:center;color:#999;padding:18px">\uC624\uB298 \uD22C\uB450\uB97C \uCD94\uAC00\uD574\uC8FC\uC138\uC694</p>';
+  } else {
+    items.forEach(function(item) {
+      var done = !!item.proof_photo_url;
+      html += '<div class="todo-item' + (done ? ' done' : '') + '">';
+      html += '<div>';
+      html += '<div class="todo-title">' + (done ? '\u2705 ' : '\u2B1C ') + escapeHtml(item.title) + '</div>';
+      html += '<div class="todo-meta">' + (done ? formatTodoTime(item.completed_at) + ' \uC778\uC99D' : '\uBBF8\uC644\uB8CC') + '</div>';
+      html += '</div>';
+      if (done) {
+        html += '<button class="todo-proof-btn" data-photo="' + escapeHtml(item.proof_photo_url) + '">\uC0AC\uC9C4 \uBCF4\uAE30</button>';
+      } else {
+        html += '<button class="todo-proof-btn" data-todo-id="' + item.id + '">\uC0AC\uC9C4 \uC778\uC99D</button>';
+      }
+      html += '</div>';
+    });
+  }
+  document.getElementById('todoList').innerHTML = html;
+}
+
+function getTodoScope() {
+  var checked = document.querySelector('input[name="todoScope"]:checked');
+  return checked ? checked.value : 'today';
+}
+
+function setTodoScope(scope) {
+  var input = document.querySelector('input[name="todoScope"][value="' + scope + '"]');
+  if (input) input.checked = true;
+}
+
+function getSelectedTodoWeekdays() {
+  return Array.prototype.slice.call(document.querySelectorAll('.todo-weekday.active'))
+    .map(function(btn) { return Number(btn.dataset.dow); });
+}
+
+function setTodoWeekdays(days) {
+  Array.prototype.slice.call(document.querySelectorAll('.todo-weekday')).forEach(function(btn) {
+    var active = days.indexOf(Number(btn.dataset.dow)) !== -1;
+    btn.classList.toggle('active', active);
+  });
+}
+
+function updateTodoRepeatUi() {
+  var scope = getTodoScope();
+  var hint = document.getElementById('todoRepeatHint');
+  if (scope === 'today') {
+    setTodoWeekdays([new Date().getDay()]);
+    hint.textContent = '\uC624\uB298\uB9CC \uCD94\uAC00\uB429\uB2C8\uB2E4.';
+  } else if (scope === 'this_week') {
+    hint.textContent = '\uC120\uD0DD\uD55C \uC694\uC77C \uC911 \uC624\uB298 \uC774\uD6C4, \uC774\uBC88 \uC8FC\uC5D0\uB9CC \uCD94\uAC00\uB429\uB2C8\uB2E4.';
+  } else {
+    hint.textContent = '\uC120\uD0DD\uD55C \uC694\uC77C\uC5D0 \uB9E4\uC8FC \uC790\uB3D9 \uCD94\uAC00\uB429\uB2C8\uB2E4. \uC2DC\uC791\uC740 \uC624\uB298 \uC774\uD6C4\uC785\uB2C8\uB2E4.';
+  }
+}
+
+function getTodoDatesForScope(scope, weekdays) {
+  var today = new Date();
+  var todayStr = formatDate(today);
+  if (scope === 'today') return [todayStr];
+
+  var dates = [];
+  var end = new Date(today);
+  if (scope === 'this_week') {
+    var daysUntilSunday = today.getDay() === 0 ? 0 : 7 - today.getDay();
+    end = addDays(today, daysUntilSunday);
+  } else {
+    end = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 7);
+  }
+
+  for (var d = new Date(today); d <= end; d = addDays(d, 1)) {
+    if (weekdays.indexOf(d.getDay()) !== -1) {
+      dates.push(formatDate(d));
+    }
+  }
+  return dates;
+}
+
+async function addTodoItem() {
+  if (!currentTodoUser) return;
+  var input = document.getElementById('todoInput');
+  var title = input.value.trim();
+  if (!title) return;
+  var todayStr = formatDate(new Date());
+  var scope = getTodoScope();
+  var weekdays = scope === 'today' ? [new Date().getDay()] : getSelectedTodoWeekdays();
+  if (!weekdays.length) {
+    showDebug('\uC694\uC77C\uC744 \uD558\uB098 \uC774\uC0C1 \uC120\uD0DD\uD574\uC8FC\uC138\uC694.');
+    return;
+  }
+
+  var templateId = null;
+  if (scope === 'weekly') {
+    var templateResult = await supabaseClient
+      .from('todo_templates')
+      .insert({
+        user_name: currentTodoUser,
+        title: title,
+        weekdays: weekdays,
+        start_date: todayStr,
+        repeat_scope: 'weekly'
+      })
+      .select('id')
+      .single();
+    if (templateResult.error) {
+      console.error('Todo template add error:', templateResult.error);
+      showDebug('\uBC18\uBCF5 \uD22C\uB450 \uCD94\uAC00 \uC624\uB958: supabase-migration-add-todos.sql\uC744 \uBA3C\uC800 \uC2E4\uD589\uD574\uC8FC\uC138\uC694');
+      return;
+    }
+    templateId = templateResult.data.id;
+  }
+
+  var dates = getTodoDatesForScope(scope, weekdays);
+  if (!dates.length) {
+    showDebug('\uC624\uB298 \uC774\uD6C4\uC5D0 \uD574\uB2F9\uD558\uB294 \uC694\uC77C\uC774 \uC5C6\uC2B5\uB2C8\uB2E4.');
+    return;
+  }
+  var rows = dates.map(function(dateStr) {
+    return {
+      template_id: templateId,
+      user_name: currentTodoUser,
+      todo_date: dateStr,
+      title: title
+    };
+  });
+
+  var result = await supabaseClient
+    .from('todo_items')
+    .insert(rows);
+  if (result.error) {
+    console.error('Todo add error:', result.error);
+    showDebug('\uD22C\uB450 \uCD94\uAC00 \uC624\uB958: supabase-migration-add-todos.sql\uC744 \uBA3C\uC800 \uC2E4\uD589\uD574\uC8FC\uC138\uC694');
+    return;
+  }
+  input.value = '';
+  await loadData();
+  renderTodoModal();
+}
+
+function openTodoProofModal(todoId) {
+  var todayStr = formatDate(new Date());
+  var items = getTodos(todayStr, currentTodoUser);
+  currentTodoItem = items.find(function(item) { return String(item.id) === String(todoId); });
+  if (!currentTodoItem || currentTodoItem.proof_photo_url) return;
+
+  currentUser = currentTodoItem.user_name;
+  currentCheckinType = TYPE_TODO;
+  selectedFile = null;
+  var photoInput = document.getElementById('photoInput');
+  photoInput.value = '';
+  photoInput.removeAttribute('capture');
+  document.getElementById('uploadArea').innerHTML = '<p>\uD83D\uDCF7 \uD22C\uB450 \uC778\uC99D \uC0AC\uC9C4\uC744 \uC120\uD0DD\uD558\uC138\uC694</p>';
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('submitBtn').textContent = '\uC778\uC99D\uD558\uAE30';
+  document.getElementById('checkinTitle').textContent = '\uD83D\uDCF8 ' + currentUser + ' \uD22C\uB450 \uC778\uC99D';
+  document.getElementById('checkinModal').classList.add('active');
+}
+
+async function submitTodoProof() {
+  var todayStr = formatDate(new Date());
+  var safeUser = currentUser === '\uBCF4\uADDC' ? 'bogyu' : 'hyerim';
+  var fileName = 'todo/' + safeUser + '/' + todayStr + '/todo-' + currentTodoItem.id + '-' + Date.now() + '.jpg';
+
+  var uploadResult = await supabaseClient.storage
+    .from('photos')
+    .upload(fileName, selectedFile, { contentType: selectedFile.type });
+  if (uploadResult.error) throw uploadResult.error;
+
+  var urlData = supabaseClient.storage
+    .from('photos')
+    .getPublicUrl(fileName);
+
+  var updateResult = await supabaseClient
+    .from('todo_items')
+    .update({
+      proof_photo_url: urlData.data.publicUrl,
+      completed_at: new Date().toISOString()
+    })
+    .eq('id', currentTodoItem.id);
+  if (updateResult.error) throw updateResult.error;
+
+  closeCheckinModal();
+  currentTodoItem = null;
+  await loadData();
+  renderTodoModal();
+}
+
 function openCheckinModal(userName, checkinType) {
   var todayStr = formatDate(new Date());
   var todayData = getTypeData(todayStr, checkinType);
@@ -1023,12 +1599,14 @@ function openCheckinModal(userName, checkinType) {
 
   currentUser = userName;
   currentCheckinType = checkinType || TYPE_WORKOUT;
+  currentTodoItem = null;
   selectedFile = null;
   var photoInput = document.getElementById('photoInput');
   photoInput.value = '';
   photoInput.removeAttribute('capture');
   document.getElementById('uploadArea').innerHTML = '<p>\uD83D\uDCF7 \uC0AC\uC9C4\uC744 \uCCA8\uBD80\uD558\uAC70\uB098 \uC120\uD0DD\uD558\uC138\uC694</p>';
   document.getElementById('submitBtn').disabled = true;
+  document.getElementById('submitBtn').textContent = '\uC778\uC99D\uD558\uAE30';
   var typeLabel = currentCheckinType === TYPE_MORNING ? '아침 인증' : '운동 인증';
   document.getElementById('checkinTitle').textContent = '\uD83D\uDCF8 ' + userName + ' ' + typeLabel;
   document.getElementById('checkinModal').classList.add('active');
@@ -1058,6 +1636,11 @@ async function submitCheckin() {
   btn.textContent = '\uC5C5\uB85C\uB4DC \uC911...';
 
   try {
+    if (currentCheckinType === TYPE_TODO) {
+      await submitTodoProof();
+      return;
+    }
+
     var todayStr = formatDate(new Date());
     var safeUser = currentUser === '\uBCF4\uADDC' ? 'bogyu' : 'hyerim';
     var safeType = currentCheckinType === TYPE_MORNING ? 'morning' : 'workout';
@@ -1143,6 +1726,11 @@ function viewDay(dateStr) {
     }
   });
 
+  var todoHtml = renderDayTodoSection(dateStr);
+  if (todoHtml) {
+    html += todoHtml;
+  }
+
   if (!html) {
     html = '<p style="text-align:center;color:#999;padding:20px">\uC774 \uB0A0\uC740 \uC778\uC99D \uAE30\uB85D\uC774 \uC5C6\uC2B5\uB2C8\uB2E4</p>';
   }
@@ -1151,11 +1739,47 @@ function viewDay(dateStr) {
   document.getElementById('photoViewModal').classList.add('active');
 }
 
+function renderDayTodoSection(dateStr) {
+  var html = '';
+  ['\uBCF4\uADDC', '\uD61C\uB9BC'].forEach(function(name) {
+    var items = getTodos(dateStr, name);
+    if (!items.length) return;
+    var summary = getTodoSummary(dateStr, name);
+    var cls = name === '\uBCF4\uADDC' ? 'bogyu' : 'hyerim';
+    html += '<h4 style="margin:12px 0 0;color:#ccc;font-size:14px">\u2705 ' + name + ' \uD22C\uB450 ' + summary.done + '/' + summary.total + '</h4>';
+    items.forEach(function(item) {
+      html += '<div class="photo-card">';
+      if (item.proof_photo_url) {
+        html += '<img src="' + escapeHtml(item.proof_photo_url) + '" alt="' + escapeHtml(item.title) + '" loading="lazy">';
+      }
+      html += '<div class="info">';
+      html += '<span class="badge ' + cls + '">' + (item.proof_photo_url ? '\u2705 ' : '\u2B1C ') + escapeHtml(item.title) + '</span>';
+      html += '<span style="color:#999;font-size:12px">' + (item.completed_at ? formatTodoTime(item.completed_at) : '\uBBF8\uC644\uB8CC') + '</span>';
+      html += '</div></div>';
+    });
+  });
+  return html;
+}
+
 // ============================================
 // 유틸
 // ============================================
 function formatDate(d) {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function formatTodoTime(value) {
+  if (!value) return '';
+  return new Date(value).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
+}
+
+function escapeHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 function formatMoney(amount) {
@@ -1186,6 +1810,41 @@ window.addEventListener('DOMContentLoaded', function() {
   });
   document.getElementById('morningHyerim').addEventListener('click', function() {
     openCheckinModal('\uD61C\uB9BC', TYPE_MORNING);
+  });
+  document.getElementById('todoBogyu').addEventListener('click', function() {
+    openTodoModal('\uBCF4\uADDC');
+  });
+  document.getElementById('todoHyerim').addEventListener('click', function() {
+    openTodoModal('\uD61C\uB9BC');
+  });
+  document.getElementById('todoAddBtn').addEventListener('click', addTodoItem);
+  document.getElementById('todoInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') addTodoItem();
+  });
+  Array.prototype.slice.call(document.querySelectorAll('input[name="todoScope"]')).forEach(function(input) {
+    input.addEventListener('change', updateTodoRepeatUi);
+  });
+  document.getElementById('todoWeekdays').addEventListener('click', function(e) {
+    var btn = e.target.closest('.todo-weekday');
+    if (!btn) return;
+    if (getTodoScope() === 'today') {
+      setTodoWeekdays([new Date().getDay()]);
+      return;
+    }
+    btn.classList.toggle('active');
+    updateTodoRepeatUi();
+  });
+  document.getElementById('closeTodoBtn').addEventListener('click', closeTodoModal);
+  document.getElementById('todoList').addEventListener('click', function(e) {
+    var proofBtn = e.target.closest('[data-todo-id]');
+    if (proofBtn) {
+      openTodoProofModal(proofBtn.dataset.todoId);
+      return;
+    }
+    var photoBtn = e.target.closest('[data-photo]');
+    if (photoBtn) {
+      window.open(photoBtn.dataset.photo, '_blank');
+    }
   });
   document.getElementById('uploadArea').addEventListener('click', function() {
     document.getElementById('photoInput').click();
