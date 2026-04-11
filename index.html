@@ -572,6 +572,7 @@ var WEEKLY_TARGET_BOGYU = 4;
 var WEEKLY_TARGET_HYERIM = 4;
 var PENALTY_PER_MISS = 100000;
 var APP_START_DATE = '2026-02-24';
+var MORNING_START_DATE = '2026-04-13';
 var TYPE_WORKOUT = 'workout';
 var TYPE_MORNING = 'morning';
 
@@ -704,18 +705,11 @@ function updateCheckinBtns() {
 function updateMorningBtn(userName, btnId, statusId, morningData) {
   var btn = document.getElementById(btnId);
   var status = document.getElementById(statusId);
-  btn.classList.remove('done', 'disabled');
+  btn.classList.remove('done');
 
   if (morningData[userName]) {
     status.textContent = '\u2705 완료';
     btn.classList.add('done');
-    return;
-  }
-
-  var state = getMorningState(userName, new Date());
-  if (!state.allowed) {
-    status.textContent = state.reason;
-    btn.classList.add('disabled');
     return;
   }
 
@@ -727,22 +721,6 @@ function updateMorningBtn(userName, btnId, statusId, morningData) {
 function getTypeData(dateStr, type) {
   var dayData = checkinData[dateStr] || {};
   return dayData[type] || {};
-}
-
-function getMorningState(userName, now) {
-  var dow = now.getDay(); // 일=0, 월=1, ... 토=6
-  var hour = now.getHours();
-  var minute = now.getMinutes();
-  var minutes = hour * 60 + minute;
-
-  if (userName === '\uBCF4\uADDC') {
-    if (dow === 0 || dow === 6) return { allowed: false, reason: '평일만' };
-    if (minutes >= 11 * 60) return { allowed: false, reason: '11시 지남' };
-    return { allowed: true, reason: '' };
-  }
-
-  if (minutes >= 9 * 60) return { allowed: false, reason: '9시 지남' };
-  return { allowed: true, reason: '' };
 }
 
 function renderCalendarMarks(dayData) {
@@ -851,6 +829,7 @@ function renderPenalty() {
   weeks.forEach(function(week) {
     var bc = 0, hc = 0;
     var bm = 0, hmWeekday = 0, hmWeekend = 0;
+    var includeMorningPenalty = week[0] >= MORNING_START_DATE;
     week.forEach(function(dateStr) {
       var workout = getTypeData(dateStr, TYPE_WORKOUT);
       var morning = getTypeData(dateStr, TYPE_MORNING);
@@ -868,8 +847,10 @@ function renderPenalty() {
     });
     bogyuWorkoutMisses += Math.max(0, WEEKLY_TARGET_BOGYU - bc);
     hyerimWorkoutMisses += Math.max(0, WEEKLY_TARGET_HYERIM - hc);
-    bogyuMorningMisses += Math.max(0, 4 - bm);
-    hyerimMorningMisses += getHyerimMorningMisses(hmWeekday, hmWeekend);
+    if (includeMorningPenalty) {
+      bogyuMorningMisses += Math.max(0, 4 - bm);
+      hyerimMorningMisses += getHyerimMorningMisses(hmWeekday, hmWeekend);
+    }
   });
 
   var bogyuMisses = bogyuWorkoutMisses + bogyuMorningMisses;
@@ -984,6 +965,13 @@ function renderWeekProgress() {
   document.getElementById('hyerimMorningWeekCount').textContent = '평' + hmWeekday + '/2 주' + hmWeekend + '/2';
   document.getElementById('bogyuMorningBar').style.width = Math.min(100, (bm / 4) * 100) + '%';
   document.getElementById('hyerimMorningBar').style.width = Math.min(100, ((4 - getHyerimMorningMisses(hmWeekday, hmWeekend)) / 4) * 100) + '%';
+
+  if (formatDate(today) < MORNING_START_DATE) {
+    document.getElementById('bogyuMorningWeekCount').textContent = '4/13 시작';
+    document.getElementById('hyerimMorningWeekCount').textContent = '4/13 시작';
+    document.getElementById('bogyuMorningBar').style.width = '0%';
+    document.getElementById('hyerimMorningBar').style.width = '0%';
+  }
 }
 
 // ============================================
@@ -993,13 +981,6 @@ function openCheckinModal(userName, checkinType) {
   var todayStr = formatDate(new Date());
   var todayData = getTypeData(todayStr, checkinType);
   if (todayData[userName]) return;
-  if (checkinType === TYPE_MORNING) {
-    var state = getMorningState(userName, new Date());
-    if (!state.allowed) {
-      showDebug(userName + ' 아침 인증 불가: ' + state.reason);
-      return;
-    }
-  }
 
   currentUser = userName;
   currentCheckinType = checkinType || TYPE_WORKOUT;
