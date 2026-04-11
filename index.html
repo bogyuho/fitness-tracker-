@@ -1112,7 +1112,6 @@ function viewDay(dateStr) {
         }
         groupHtml += '<div class="info">';
         groupHtml += '<span class="badge ' + cls + '">' + name + '</span>';
-        groupHtml += '<span style="color:#999;font-size:12px">' + new Date(typeData[name].created_at).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'}) + '</span>';
         groupHtml += '</div></div>';
       }
     });
