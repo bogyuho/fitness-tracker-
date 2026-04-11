@@ -515,6 +515,7 @@
     }
 
     .todo-item.done { opacity: 0.82; }
+    .todo-item.cancelled { opacity: 0.45; }
 
     .todo-title {
       font-size: 14px;
@@ -534,6 +535,24 @@
       padding: 9px 10px;
       background: var(--card2);
       color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .todo-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .todo-cancel-btn {
+      border: none;
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: rgba(244,63,94,0.16);
+      color: #FDA4AF;
       font-size: 12px;
       font-weight: 700;
       cursor: pointer;
@@ -1029,9 +1048,20 @@ function getTodos(dateStr, userName) {
 }
 
 function getTodoSummary(dateStr, userName) {
-  var items = getTodos(dateStr, userName);
+  var items = getActiveTodos(dateStr, userName);
   var done = items.filter(function(item) { return !!item.proof_photo_url; }).length;
   return { total: items.length, done: done, pending: items.length - done };
+}
+
+function getActiveTodos(dateStr, userName) {
+  return getTodos(dateStr, userName).filter(function(item) {
+    return !item.cancelled_at;
+  });
+}
+
+function canCancelTodo(item) {
+  if (!item || item.proof_photo_url || item.cancelled_at) return false;
+  return (Date.now() - new Date(item.created_at).getTime()) <= 5 * 60 * 1000;
 }
 
 function parseLocalDate(dateStr) {
@@ -1416,16 +1446,24 @@ function renderTodoModal() {
   } else {
     items.forEach(function(item) {
       var done = !!item.proof_photo_url;
-      html += '<div class="todo-item' + (done ? ' done' : '') + '">';
+      var cancelled = !!item.cancelled_at;
+      html += '<div class="todo-item' + (done ? ' done' : '') + (cancelled ? ' cancelled' : '') + '">';
       html += '<div>';
-      html += '<div class="todo-title">' + (done ? '\u2705 ' : '\u2B1C ') + escapeHtml(item.title) + '</div>';
-      html += '<div class="todo-meta">' + (done ? formatTodoTime(item.completed_at) + ' \uC778\uC99D' : '\uBBF8\uC644\uB8CC') + '</div>';
+      html += '<div class="todo-title">' + getTodoStateIcon(item) + ' ' + escapeHtml(item.title) + '</div>';
+      html += '<div class="todo-meta">' + getTodoMetaText(item) + '</div>';
       html += '</div>';
-      if (done) {
+      html += '<div class="todo-actions">';
+      if (cancelled) {
+        html += '<button class="todo-proof-btn" disabled>\uCDE8\uC18C\uB428</button>';
+      } else if (done) {
         html += '<button class="todo-proof-btn" data-photo="' + escapeHtml(item.proof_photo_url) + '">\uC0AC\uC9C4 \uBCF4\uAE30</button>';
       } else {
         html += '<button class="todo-proof-btn" data-todo-id="' + item.id + '">\uC0AC\uC9C4 \uC778\uC99D</button>';
+        if (canCancelTodo(item)) {
+          html += '<button class="todo-cancel-btn" data-cancel-todo-id="' + item.id + '">5\uBD84 \uCDE8\uC18C</button>';
+        }
       }
+      html += '</div>';
       html += '</div>';
     });
   }
@@ -1465,6 +1503,49 @@ function updateTodoRepeatUi() {
   } else {
     hint.textContent = '\uC120\uD0DD\uD55C \uC694\uC77C\uC5D0 \uB9E4\uC8FC \uC790\uB3D9 \uCD94\uAC00\uB429\uB2C8\uB2E4. \uC2DC\uC791\uC740 \uC624\uB298 \uC774\uD6C4\uC785\uB2C8\uB2E4.';
   }
+}
+
+function getTodoStateIcon(item) {
+  if (item.cancelled_at) return '\uD83D\uDEAB';
+  if (item.proof_photo_url) return '\u2705';
+  return '\u2B1C';
+}
+
+function getTodoMetaText(item) {
+  if (item.cancelled_at) return '\uCDE8\uC18C\uB428 \u00B7 \uBC8C\uAE08 \uC81C\uC678';
+  if (item.proof_photo_url) return formatTodoTime(item.completed_at) + ' \uC778\uC99D';
+  if (canCancelTodo(item)) return '5\uBD84 \uC774\uB0B4 \uC2E4\uC218 \uCDE8\uC18C \uAC00\uB2A5';
+  return '\uBBF8\uC644\uB8CC';
+}
+
+function findTodayTodo(todoId) {
+  var todayStr = formatDate(new Date());
+  return getTodos(todayStr, currentTodoUser).find(function(item) {
+    return String(item.id) === String(todoId);
+  });
+}
+
+async function cancelTodoItem(todoId) {
+  var item = findTodayTodo(todoId);
+  if (!item || !canCancelTodo(item)) return;
+  if (!confirm('\uC774 \uD22C\uB450\uB97C \uC2E4\uC218 \uCDE8\uC18C\uD560\uAE4C\uC694?')) return;
+
+  var result = await supabaseClient
+    .from('todo_items')
+    .update({
+      cancelled_at: new Date().toISOString(),
+      cancel_reason: 'mistake_within_5_minutes'
+    })
+    .eq('id', item.id);
+
+  if (result.error) {
+    console.error('Todo cancel error:', result.error);
+    showDebug('\uD22C\uB450 \uCDE8\uC18C \uC624\uB958: supabase-migration-add-todos.sql\uC744 \uB2E4\uC2DC \uC2E4\uD589\uD574\uC8FC\uC138\uC694');
+    return;
+  }
+
+  await loadData();
+  renderTodoModal();
 }
 
 function getTodoDatesForScope(scope, weekdays) {
@@ -1551,10 +1632,8 @@ async function addTodoItem() {
 }
 
 function openTodoProofModal(todoId) {
-  var todayStr = formatDate(new Date());
-  var items = getTodos(todayStr, currentTodoUser);
-  currentTodoItem = items.find(function(item) { return String(item.id) === String(todoId); });
-  if (!currentTodoItem || currentTodoItem.proof_photo_url) return;
+  currentTodoItem = findTodayTodo(todoId);
+  if (!currentTodoItem || currentTodoItem.proof_photo_url || currentTodoItem.cancelled_at) return;
 
   currentUser = currentTodoItem.user_name;
   currentCheckinType = TYPE_TODO;
@@ -1761,8 +1840,8 @@ function renderDayTodoSection(dateStr) {
         html += '<img src="' + escapeHtml(item.proof_photo_url) + '" alt="' + escapeHtml(item.title) + '" loading="lazy">';
       }
       html += '<div class="info">';
-      html += '<span class="badge ' + cls + '">' + (item.proof_photo_url ? '\u2705 ' : '\u2B1C ') + escapeHtml(item.title) + '</span>';
-      html += '<span style="color:#999;font-size:12px">' + (item.completed_at ? formatTodoTime(item.completed_at) : '\uBBF8\uC644\uB8CC') + '</span>';
+      html += '<span class="badge ' + cls + '">' + getTodoStateIcon(item) + ' ' + escapeHtml(item.title) + '</span>';
+      html += '<span style="color:#999;font-size:12px">' + getTodoMetaText(item) + '</span>';
       html += '</div></div>';
     });
   });
@@ -1965,6 +2044,11 @@ window.addEventListener('DOMContentLoaded', function() {
     var proofBtn = e.target.closest('[data-todo-id]');
     if (proofBtn) {
       openTodoProofModal(proofBtn.dataset.todoId);
+      return;
+    }
+    var cancelBtn = e.target.closest('[data-cancel-todo-id]');
+    if (cancelBtn) {
+      cancelTodoItem(cancelBtn.dataset.cancelTodoId);
       return;
     }
     var photoBtn = e.target.closest('[data-photo]');

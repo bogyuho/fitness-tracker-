@@ -27,6 +27,12 @@ CREATE TABLE IF NOT EXISTS todo_templates (
 ALTER TABLE todo_items
   ADD COLUMN IF NOT EXISTS template_id BIGINT;
 
+ALTER TABLE todo_items
+  ADD COLUMN IF NOT EXISTS cancelled_at TIMESTAMPTZ;
+
+ALTER TABLE todo_items
+  ADD COLUMN IF NOT EXISTS cancel_reason TEXT;
+
 DO $$
 BEGIN
   IF NOT EXISTS (
