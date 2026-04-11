@@ -266,77 +266,101 @@
     .cal-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 6px;
+      gap: 7px;
     }
 
     .cal-day {
-      min-height: 74px;
+      min-height: 82px;
       min-width: 0;
-      overflow: visible;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      align-items: center;
+      align-items: stretch;
       justify-content: flex-start;
-      border-radius: 14px;
+      border-radius: 16px;
       font-size: 14px;
       cursor: pointer;
-      background: var(--card2);
+      background: linear-gradient(180deg, rgba(255,255,255,0.085), rgba(255,255,255,0.035));
+      border: 1px solid rgba(255,255,255,0.06);
       transition: transform 0.1s;
-      padding: 5px 1px 4px;
+      padding: 6px 4px 5px;
     }
 
     .cal-day:active { transform: scale(0.9); }
     .cal-day.empty { background: transparent; cursor: default; }
-    .cal-day.other-month { opacity: 0.3; }
-    .cal-day.today { border: 2px solid var(--accent); }
+    .cal-day.other-month { opacity: 0.34; }
+    .cal-day.today {
+      border: 1px solid rgba(129,140,248,0.9);
+      box-shadow: inset 0 0 0 1px rgba(129,140,248,0.45);
+    }
     .cal-day.future { opacity: 0.25; cursor: default; }
-    .cal-day.future.has-todo { opacity: 0.55; cursor: pointer; }
+    .cal-day.future.has-todo { opacity: 0.68; cursor: pointer; }
 
     .cal-day .day-num {
       font-size: 12px;
       line-height: 1;
-      margin-bottom: 2px;
+      margin-bottom: 5px;
       flex: 0 0 auto;
+      text-align: left;
+      color: var(--text);
+      font-weight: 800;
     }
 
     .cal-day .marks {
       display: flex;
       flex-direction: column;
-      gap: 1px;
+      gap: 3px;
       width: 100%;
-      font-size: 8.5px;
-      line-height: 1.1;
-      overflow: visible;
+      font-size: 8px;
+      line-height: 1;
+      overflow: hidden;
     }
 
     .mark-row {
       display: flex;
-      justify-content: center;
-      gap: 1px;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 2px;
       white-space: nowrap;
     }
 
-    .mark-type { opacity: 0.85; }
-    .mark-name { opacity: 0.25; font-weight: 700; }
-    .mark-name.on { opacity: 1; }
-    .mark-name.bogyu.on { color: #A5B4FC; }
-    .mark-name.hyerim.on { color: #FDA4AF; }
+    .mark-type { opacity: 0.85; flex: 0 0 auto; }
+    .mark-name {
+      min-width: 12px;
+      padding: 1px 2px;
+      border-radius: 5px;
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.3);
+      font-weight: 800;
+      text-align: center;
+    }
+    .mark-name.on { opacity: 1; color: white; }
+    .mark-name.bogyu.on { background: rgba(99,102,241,0.75); }
+    .mark-name.hyerim.on { background: rgba(244,63,94,0.75); }
 
     .todo-mark-row {
-      justify-content: center;
-      gap: 2px;
-      font-size: 7.5px;
-      letter-spacing: -0.4px;
+      justify-content: flex-start;
+      gap: 3px;
+      font-size: 8px;
+      letter-spacing: -0.35px;
     }
 
     .todo-mark-row.person {
-      gap: 1px;
-      font-size: 7px;
+      gap: 2px;
+      font-size: 7.8px;
     }
 
     .todo-mark-row .todo-empty { opacity: 0.25; }
-    .todo-mark-row .todo-count.bogyu { color: #A5B4FC; font-weight: 700; }
-    .todo-mark-row .todo-count.hyerim { color: #FDA4AF; font-weight: 700; }
+    .todo-count {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      border-radius: 6px;
+      padding: 2px 3px;
+      font-weight: 800;
+    }
+    .todo-mark-row .todo-count.bogyu { color: #E0E7FF; background: rgba(99,102,241,0.28); }
+    .todo-mark-row .todo-count.hyerim { color: #FFE4E6; background: rgba(244,63,94,0.28); }
 
     /* 모달 */
     .modal-overlay {
