@@ -376,8 +376,8 @@
       border: 1px solid rgba(129,140,248,0.9);
       background: rgba(129,140,248,0.12);
     }
-    .cal-day.future { opacity: 0.18; cursor: default; }
-    .cal-day.future.has-todo { opacity: 0.62; cursor: pointer; }
+    .cal-day.future { opacity: 0.42; cursor: pointer; }
+    .cal-day.future.has-todo { opacity: 0.72; }
     .cal-day.current-week.future { opacity: 0.78; }
     .cal-day.current-week.future.has-todo { opacity: 1; }
 
@@ -681,6 +681,27 @@
       cursor: pointer;
       white-space: nowrap;
     }
+
+    .day-todo-add {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .day-todo-add button {
+      border: none;
+      border-radius: 12px;
+      padding: 11px 8px;
+      color: white;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .day-todo-add .bogyu { background: linear-gradient(135deg, #6366F1, #4F46E5); }
+    .day-todo-add .hyerim { background: linear-gradient(135deg, #FB7185, #F43F5E); }
 
     .choice-body {
       color: var(--text2);
@@ -1066,6 +1087,7 @@ var currentUser = null;
 var currentCheckinType = TYPE_WORKOUT;
 var currentTodoUser = null;
 var currentTodoItem = null;
+var currentTodoDate = null;
 var pendingCancelTodo = null;
 var currentViewedDate = null;
 var currentMonth = new Date();
@@ -1434,11 +1456,7 @@ function renderCalendar() {
     if (isFuture) cls += ' future';
     if (hasFutureTodo) cls += ' has-todo';
 
-    if (!isFuture || hasFutureTodo) {
-      html += '<div class="' + cls + '" data-date="' + dateStr + '">';
-    } else {
-      html += '<div class="' + cls + '">';
-    }
+    html += '<div class="' + cls + '" data-date="' + dateStr + '">';
     html += '<span class="day-num">' + d + '</span>' + marks + '</div>';
   }
 
@@ -1458,11 +1476,7 @@ function renderCalendar() {
     if (nextDateStr >= currentWeekStartStr && nextDateStr <= currentWeekEndStr) nextCls += ' current-week';
     if (nextIsFuture) nextCls += ' future';
     if (nextHasFutureTodo) nextCls += ' has-todo';
-    if (!nextIsFuture || nextHasFutureTodo) {
-      html += '<div class="' + nextCls + '" data-date="' + nextDateStr + '">';
-    } else {
-      html += '<div class="' + nextCls + '">';
-    }
+    html += '<div class="' + nextCls + '" data-date="' + nextDateStr + '">';
     html += '<span class="day-num">' + t + '</span>' + nextMarks + '</div>';
   }
 
@@ -1654,12 +1668,15 @@ function renderWeekProgress() {
 // ============================================
 // 인증 모달
 // ============================================
-function openTodoModal(userName) {
+function openTodoModal(userName, dateStr) {
   currentTodoUser = userName;
-  document.getElementById('todoTitle').textContent = userName + ' \uC624\uB298 \uD22C\uB450';
+  currentTodoDate = dateStr || formatDate(new Date());
+  var isToday = currentTodoDate === formatDate(new Date());
+  var titleDate = isToday ? '\uC624\uB298' : formatShortDate(currentTodoDate);
+  document.getElementById('todoTitle').textContent = userName + ' ' + titleDate + ' \uD22C\uB450';
   document.getElementById('todoInput').value = '';
   setTodoScope('today');
-  setTodoWeekdays([new Date().getDay()]);
+  setTodoWeekdays([parseLocalDate(currentTodoDate).getDay()]);
   updateTodoRepeatUi();
   renderTodoModal();
   document.getElementById('todoModal').classList.add('active');
@@ -1667,13 +1684,16 @@ function openTodoModal(userName) {
 
 function closeTodoModal() {
   document.getElementById('todoModal').classList.remove('active');
+  currentTodoDate = null;
 }
 
 function renderTodoModal() {
   if (!currentTodoUser) return;
-  var todayStr = formatDate(new Date());
-  var items = getActiveTodos(todayStr, currentTodoUser);
-  var summary = getTodoSummary(todayStr, currentTodoUser);
+  var targetDate = currentTodoDate || formatDate(new Date());
+  var isToday = targetDate === formatDate(new Date());
+  var emptyLabel = isToday ? '\uC624\uB298' : formatShortDate(targetDate);
+  var items = getActiveTodos(targetDate, currentTodoUser);
+  var summary = getTodoSummary(targetDate, currentTodoUser);
   var pendingPenalty = summary.pending * TODO_PENALTY_PER_MISS;
   document.getElementById('todoSummary').innerHTML =
     '<span>\uC9C4\uD589\uB960 ' + summary.done + '/' + summary.total + '</span>'
@@ -1681,7 +1701,7 @@ function renderTodoModal() {
 
   var html = '';
   if (!items.length) {
-    html = '<p style="text-align:center;color:#999;padding:18px">\uC624\uB298 \uD22C\uB450\uB97C \uCD94\uAC00\uD574\uC8FC\uC138\uC694</p>';
+    html = '<p style="text-align:center;color:#999;padding:18px">' + emptyLabel + ' \uD22C\uB450\uB97C \uCD94\uAC00\uD574\uC8FC\uC138\uC694</p>';
   } else {
     items.forEach(function(item) {
       var done = !!item.proof_photo_url;
@@ -1731,13 +1751,15 @@ function setTodoWeekdays(days) {
 function updateTodoRepeatUi() {
   var scope = getTodoScope();
   var hint = document.getElementById('todoRepeatHint');
+  var targetDate = currentTodoDate || formatDate(new Date());
+  var targetLabel = targetDate === formatDate(new Date()) ? '\uC624\uB298' : formatShortDate(targetDate);
   if (scope === 'today') {
-    setTodoWeekdays([new Date().getDay()]);
-    hint.textContent = '\uC624\uB298\uB9CC \uCD94\uAC00\uB429\uB2C8\uB2E4.';
+    setTodoWeekdays([parseLocalDate(targetDate).getDay()]);
+    hint.textContent = targetLabel + '\uC5D0\uB9CC \uCD94\uAC00\uB429\uB2C8\uB2E4.';
   } else if (scope === 'this_week') {
-    hint.textContent = '\uC120\uD0DD\uD55C \uC694\uC77C \uC911 \uC624\uB298 \uC774\uD6C4, \uC774\uBC88 \uC8FC\uC5D0\uB9CC \uCD94\uAC00\uB429\uB2C8\uB2E4.';
+    hint.textContent = '\uC120\uD0DD\uD55C \uC694\uC77C \uC911 ' + targetLabel + ' \uC774\uD6C4, \uC774\uBC88 \uC8FC\uC5D0\uB9CC \uCD94\uAC00\uB429\uB2C8\uB2E4.';
   } else {
-    hint.textContent = '\uC120\uD0DD\uD55C \uC694\uC77C\uC5D0 \uB9E4\uC8FC \uC790\uB3D9 \uCD94\uAC00\uB429\uB2C8\uB2E4. \uC2DC\uC791\uC740 \uC624\uB298 \uC774\uD6C4\uC785\uB2C8\uB2E4.';
+    hint.textContent = '\uC120\uD0DD\uD55C \uC694\uC77C\uC5D0 \uB9E4\uC8FC \uC790\uB3D9 \uCD94\uAC00\uB429\uB2C8\uB2E4. \uC2DC\uC791\uC740 ' + targetLabel + ' \uC774\uD6C4\uC785\uB2C8\uB2E4.';
   }
 }
 
@@ -1858,21 +1880,22 @@ async function refreshAfterTodoCancel() {
   }
 }
 
-function getTodoDatesForScope(scope, weekdays) {
-  var today = new Date();
-  var todayStr = formatDate(today);
-  if (scope === 'today') return [todayStr];
+function getTodoDatesForScope(scope, weekdays, baseDateStr) {
+  var baseDate = parseLocalDate(baseDateStr || formatDate(new Date()));
+  var baseDateFormatted = formatDate(baseDate);
+  if (scope === 'today') return [baseDateFormatted];
 
   var dates = [];
-  var end = new Date(today);
+  var end = new Date(baseDate);
   if (scope === 'this_week') {
-    var daysUntilSunday = today.getDay() === 0 ? 0 : 7 - today.getDay();
-    end = addDays(today, daysUntilSunday);
+    var daysUntilSunday = baseDate.getDay() === 0 ? 0 : 7 - baseDate.getDay();
+    end = addDays(baseDate, daysUntilSunday);
   } else {
     end = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 7);
+    if (end < baseDate) end = addDays(baseDate, 31);
   }
 
-  for (var d = new Date(today); d <= end; d = addDays(d, 1)) {
+  for (var d = new Date(baseDate); d <= end; d = addDays(d, 1)) {
     if (weekdays.indexOf(d.getDay()) !== -1) {
       dates.push(formatDate(d));
     }
@@ -1885,9 +1908,9 @@ async function addTodoItem() {
   var input = document.getElementById('todoInput');
   var title = input.value.trim();
   if (!title) return;
-  var todayStr = formatDate(new Date());
+  var targetDate = currentTodoDate || formatDate(new Date());
   var scope = getTodoScope();
-  var weekdays = scope === 'today' ? [new Date().getDay()] : getSelectedTodoWeekdays();
+  var weekdays = scope === 'today' ? [parseLocalDate(targetDate).getDay()] : getSelectedTodoWeekdays();
   if (!weekdays.length) {
     showDebug('\uC694\uC77C\uC744 \uD558\uB098 \uC774\uC0C1 \uC120\uD0DD\uD574\uC8FC\uC138\uC694.');
     return;
@@ -1901,7 +1924,7 @@ async function addTodoItem() {
         user_name: currentTodoUser,
         title: title,
         weekdays: weekdays,
-        start_date: todayStr,
+        start_date: targetDate,
         repeat_scope: 'weekly'
       })
       .select('id')
@@ -1914,7 +1937,7 @@ async function addTodoItem() {
     templateId = templateResult.data.id;
   }
 
-  var dates = getTodoDatesForScope(scope, weekdays);
+  var dates = getTodoDatesForScope(scope, weekdays, targetDate);
   if (!dates.length) {
     showDebug('\uC624\uB298 \uC774\uD6C4\uC5D0 \uD574\uB2F9\uD558\uB294 \uC694\uC77C\uC774 \uC5C6\uC2B5\uB2C8\uB2E4.');
     return;
@@ -2129,6 +2152,7 @@ function viewDay(dateStr) {
   if (todoHtml) {
     html += todoHtml;
   }
+  html += renderDayTodoAddActions(dateStr);
 
   if (!html) {
     html = '<p style="text-align:center;color:#999;padding:20px">\uC774 \uB0A0\uC740 \uC778\uC99D \uAE30\uB85D\uC774 \uC5C6\uC2B5\uB2C8\uB2E4</p>';
@@ -2163,11 +2187,25 @@ function renderDayTodoSection(dateStr) {
   return html;
 }
 
+function renderDayTodoAddActions(dateStr) {
+  if (dateStr < formatDate(new Date())) return '';
+  return '<div class="day-todo-add">'
+    + '<button class="bogyu" data-add-todo-user="\uBCF4\uADDC" data-add-todo-date="' + dateStr + '">\uBCF4\uADDC To do \uCD94\uAC00</button>'
+    + '<button class="hyerim" data-add-todo-user="\uD61C\uB9BC" data-add-todo-date="' + dateStr + '">\uD61C\uB9BC To do \uCD94\uAC00</button>'
+    + '</div>';
+}
+
 // ============================================
 // 유틸
 // ============================================
 function formatDate(d) {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function formatShortDate(dateStr) {
+  var parts = String(dateStr || '').split('-');
+  if (parts.length !== 3) return dateStr || '';
+  return parseInt(parts[1], 10) + '\uC6D4 ' + parseInt(parts[2], 10) + '\uC77C';
 }
 
 function formatTodoTime(value) {
@@ -2348,7 +2386,7 @@ window.addEventListener('DOMContentLoaded', function() {
     var btn = e.target.closest('.todo-weekday');
     if (!btn) return;
     if (getTodoScope() === 'today') {
-      setTodoWeekdays([new Date().getDay()]);
+      setTodoWeekdays([parseLocalDate(currentTodoDate || formatDate(new Date())).getDay()]);
       return;
     }
     btn.classList.toggle('active');
@@ -2391,6 +2429,12 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('photoViewModal').classList.remove('active');
   });
   document.getElementById('photosGrid').addEventListener('click', function(e) {
+    var addTodoBtn = e.target.closest('[data-add-todo-user]');
+    if (addTodoBtn) {
+      document.getElementById('photoViewModal').classList.remove('active');
+      openTodoModal(addTodoBtn.dataset.addTodoUser, addTodoBtn.dataset.addTodoDate);
+      return;
+    }
     var cancelBtn = e.target.closest('[data-cancel-todo-id]');
     if (cancelBtn) {
       e.stopPropagation();
