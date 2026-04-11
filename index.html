@@ -270,10 +270,9 @@
     }
 
     .cal-day {
-      aspect-ratio: 1 / 1;
+      min-height: 54px;
       min-width: 0;
-      min-height: 0;
-      overflow: hidden;
+      overflow: visible;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -283,7 +282,7 @@
       cursor: pointer;
       background: var(--card2);
       transition: transform 0.1s;
-      padding: 4px 1px 2px;
+      padding: 5px 1px 4px;
     }
 
     .cal-day:active { transform: scale(0.9); }
@@ -305,8 +304,8 @@
       gap: 1px;
       width: 100%;
       font-size: 8px;
-      line-height: 1;
-      overflow: hidden;
+      line-height: 1.1;
+      overflow: visible;
     }
 
     .mark-row {
