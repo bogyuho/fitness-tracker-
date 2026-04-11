@@ -1110,18 +1110,10 @@ function renderTodoMarkRow(dateStr) {
   var b = getTodoSummary(dateStr, '\uBCF4\uADDC');
   var h = getTodoSummary(dateStr, '\uD61C\uB9BC');
   var parts = ['<span class="mark-type">\u2705</span>'];
-  if (b.total) parts.push('<span class="todo-count bogyu">\uBCF4 ' + formatTodoCalendarText(b) + '</span>');
-  if (h.total) parts.push('<span class="todo-count hyerim">\uD61C ' + formatTodoCalendarText(h) + '</span>');
+  if (b.total) parts.push('<span class="todo-count bogyu">\uBCF4 ' + b.done + '/' + b.total + '</span>');
+  if (h.total) parts.push('<span class="todo-count hyerim">\uD61C ' + h.done + '/' + h.total + '</span>');
   if (parts.length === 1) parts.push('<span class="todo-empty">-</span>');
   return '<div class="mark-row todo-mark-row">' + parts.join('') + '</div>';
-}
-
-function formatTodoCalendarText(summary) {
-  var text = summary.done + '/' + summary.total;
-  if (summary.pending > 0) {
-    text += ' -' + (summary.pending * 10) + '\uB9CC';
-  }
-  return text;
 }
 
 function renderMarkRow(label, data) {
