@@ -688,7 +688,7 @@
       <div class="card-status" id="statusMorningBogyu">11시 전 · 야외</div>
     </button>
     <button class="checkin-card bogyu" id="todoBogyu">
-      <div class="card-name">&#9989; 투두</div>
+      <div class="card-name">🔥 투두</div>
       <div class="card-status" id="statusTodoBogyu">추가</div>
     </button>
   </div>
@@ -703,7 +703,7 @@
       <div class="card-status" id="statusMorningHyerim">9시 전 · 사무실<small>평2+주2 or 평4</small></div>
     </button>
     <button class="checkin-card hyerim" id="todoHyerim">
-      <div class="card-name">&#9989; 투두</div>
+      <div class="card-name">🔥 투두</div>
       <div class="card-status" id="statusTodoHyerim">추가</div>
     </button>
   </div>
@@ -1199,10 +1199,10 @@ function renderTodoMarkRow(dateStr) {
   if (!b.total && !h.total) return '';
   var html = '';
   if (b.total) {
-    html += '<div class="mark-row todo-mark-row person"><span class="mark-type">\u2705</span><span class="todo-count bogyu">\uBCF4 ' + b.done + '/' + b.total + '</span></div>';
+    html += '<div class="mark-row todo-mark-row person"><span class="mark-type">\uD83D\uDD25</span><span class="todo-count bogyu">\uBCF4 ' + b.done + '/' + b.total + '</span></div>';
   }
   if (h.total) {
-    html += '<div class="mark-row todo-mark-row person"><span class="mark-type">\u2705</span><span class="todo-count hyerim">\uD61C ' + h.done + '/' + h.total + '</span></div>';
+    html += '<div class="mark-row todo-mark-row person"><span class="mark-type">\uD83D\uDD25</span><span class="todo-count hyerim">\uD61C ' + h.done + '/' + h.total + '</span></div>';
   }
   return html;
 }
@@ -1978,7 +1978,7 @@ function renderDayTodoSection(dateStr) {
     if (!items.length) return;
     var summary = getTodoSummary(dateStr, name);
     var cls = name === '\uBCF4\uADDC' ? 'bogyu' : 'hyerim';
-    html += '<h4 style="margin:12px 0 0;color:#ccc;font-size:14px">\u2705 ' + name + ' \uD22C\uB450 ' + summary.done + '/' + summary.total + '</h4>';
+    html += '<h4 style="margin:12px 0 0;color:#ccc;font-size:14px">\uD83D\uDD25 ' + name + ' \uD22C\uB450 ' + summary.done + '/' + summary.total + '</h4>';
     items.forEach(function(item) {
       html += '<div class="photo-card">';
       if (item.proof_photo_url) {
