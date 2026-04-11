@@ -554,7 +554,6 @@
     }
 
     .todo-item.done { opacity: 0.82; }
-    .todo-item.cancelled { opacity: 0.45; }
 
     .todo-title {
       font-size: 14px;
@@ -1547,7 +1546,7 @@ function closeTodoModal() {
 function renderTodoModal() {
   if (!currentTodoUser) return;
   var todayStr = formatDate(new Date());
-  var items = getTodos(todayStr, currentTodoUser);
+  var items = getActiveTodos(todayStr, currentTodoUser);
   var summary = getTodoSummary(todayStr, currentTodoUser);
   var pendingPenalty = summary.pending * TODO_PENALTY_PER_MISS;
   document.getElementById('todoSummary').innerHTML =
@@ -1560,16 +1559,13 @@ function renderTodoModal() {
   } else {
     items.forEach(function(item) {
       var done = !!item.proof_photo_url;
-      var cancelled = !!item.cancelled_at;
-      html += '<div class="todo-item' + (done ? ' done' : '') + (cancelled ? ' cancelled' : '') + '">';
+      html += '<div class="todo-item' + (done ? ' done' : '') + '">';
       html += '<div>';
       html += '<div class="todo-title">' + getTodoStateIcon(item) + ' ' + escapeHtml(item.title) + '</div>';
       html += '<div class="todo-meta">' + getTodoMetaText(item) + '</div>';
       html += '</div>';
       html += '<div class="todo-actions">';
-      if (cancelled) {
-        html += '<button class="todo-proof-btn" disabled>\uCDE8\uC18C\uB428</button>';
-      } else if (done) {
+      if (done) {
         html += '<button class="todo-proof-btn" data-photo="' + escapeHtml(item.proof_photo_url) + '">\uC0AC\uC9C4 \uBCF4\uAE30</button>';
       } else {
         html += '<button class="todo-proof-btn" data-todo-id="' + item.id + '">\uC0AC\uC9C4 \uC778\uC99D</button>';
@@ -1620,13 +1616,11 @@ function updateTodoRepeatUi() {
 }
 
 function getTodoStateIcon(item) {
-  if (item.cancelled_at) return '\uD83D\uDEAB';
   if (item.proof_photo_url) return '\u2705';
   return '\u2B1C';
 }
 
 function getTodoMetaText(item) {
-  if (item.cancelled_at) return '\uCDE8\uC18C\uB428 \u00B7 \uBC8C\uAE08 \uC81C\uC678';
   if (item.proof_photo_url) return formatTodoTime(item.completed_at) + ' \uC778\uC99D';
   if (isFutureTodo(item)) return '\uC608\uC815 \u00B7 \uBBF8\uB798 \uCDE8\uC18C \uAC00\uB2A5';
   if (canCancelTodo(item)) return '5\uBD84 \uC774\uB0B4 \uC2E4\uC218 \uCDE8\uC18C \uAC00\uB2A5';
@@ -2021,7 +2015,7 @@ function viewDay(dateStr) {
 function renderDayTodoSection(dateStr) {
   var html = '';
   ['\uBCF4\uADDC', '\uD61C\uB9BC'].forEach(function(name) {
-    var items = getTodos(dateStr, name);
+    var items = getActiveTodos(dateStr, name);
     if (!items.length) return;
     var summary = getTodoSummary(dateStr, name);
     var cls = name === '\uBCF4\uADDC' ? 'bogyu' : 'hyerim';
