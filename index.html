@@ -1212,6 +1212,8 @@ function renderPenalty() {
   var hyerimTodoMisses = 0;
   var weeks = getCompletedWeeks(year, month, today);
   var todayStr = formatDate(today);
+  var bogyuTodayTodoPending = getTodoSummary(todayStr, '\uBCF4\uADDC').pending;
+  var hyerimTodayTodoPending = getTodoSummary(todayStr, '\uD61C\uB9BC').pending;
 
   weeks.forEach(function(week) {
     var bc = 0, hc = 0;
@@ -1242,7 +1244,7 @@ function renderPenalty() {
 
   Object.keys(todoData).forEach(function(dateStr) {
     var d = new Date(dateStr + 'T00:00:00');
-    if (d.getMonth() !== month || dateStr >= todayStr) return;
+    if (d.getMonth() !== month || dateStr > todayStr) return;
     bogyuTodoMisses += getTodoSummary(dateStr, '\uBCF4\uADDC').pending;
     hyerimTodoMisses += getTodoSummary(dateStr, '\uD61C\uB9BC').pending;
   });
@@ -1260,10 +1262,10 @@ function renderPenalty() {
     : '(\uC644\uBCBD!)';
 
   if (bogyuMisses > 0) {
-    document.getElementById('bogyuMiss').textContent = '\uC6B4\uB3D9 ' + bogyuWorkoutMisses + '\uAC1C, \uC544\uCE68 ' + bogyuMorningMisses + '\uAC1C, \uD22C\uB450 ' + bogyuTodoMisses + '\uAC1C \uBBF8\uB2EC';
+    document.getElementById('bogyuMiss').textContent = '\uC6B4\uB3D9 ' + bogyuWorkoutMisses + '\uAC1C, \uC544\uCE68 ' + bogyuMorningMisses + '\uAC1C, \uD22C\uB450 ' + bogyuTodoMisses + '\uAC1C \uBBF8\uB2EC' + (bogyuTodayTodoPending ? '(\uC624\uB298 ' + bogyuTodayTodoPending + '\uAC1C)' : '');
   }
   if (hyerimMisses > 0) {
-    document.getElementById('hyerimMiss').textContent = '\uC6B4\uB3D9 ' + hyerimWorkoutMisses + '\uAC1C, \uC544\uCE68 ' + hyerimMorningMisses + '\uAC1C, \uD22C\uB450 ' + hyerimTodoMisses + '\uAC1C \uBBF8\uB2EC';
+    document.getElementById('hyerimMiss').textContent = '\uC6B4\uB3D9 ' + hyerimWorkoutMisses + '\uAC1C, \uC544\uCE68 ' + hyerimMorningMisses + '\uAC1C, \uD22C\uB450 ' + hyerimTodoMisses + '\uAC1C \uBBF8\uB2EC' + (hyerimTodayTodoPending ? '(\uC624\uB298 ' + hyerimTodayTodoPending + '\uAC1C)' : '');
   }
 
   var bEl = document.getElementById('bogyuPenalty');
