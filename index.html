@@ -289,12 +289,25 @@
     .cal-day:active { transform: scale(0.97); }
     .cal-day.empty { background: transparent; cursor: default; }
     .cal-day.other-month { opacity: 0.34; }
+    .cal-day.past-week {
+      opacity: 0.38;
+      background: rgba(255,255,255,0.025);
+      border-color: rgba(255,255,255,0.035);
+    }
+    .cal-day.other-month.past-week { opacity: 0.22; }
+    .cal-day.current-week {
+      opacity: 1;
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.12);
+    }
     .cal-day.today {
       border: 1px solid rgba(129,140,248,0.9);
       background: rgba(129,140,248,0.12);
     }
     .cal-day.future { opacity: 0.18; cursor: default; }
     .cal-day.future.has-todo { opacity: 0.62; cursor: pointer; }
+    .cal-day.current-week.future { opacity: 0.78; }
+    .cal-day.current-week.future.has-todo { opacity: 1; }
 
     .cal-day .day-num {
       font-size: 12px;
@@ -1166,6 +1179,15 @@ function addDays(dateObj, days) {
   return d;
 }
 
+function getWeekStart(dateObj) {
+  var d = new Date(dateObj);
+  var day = d.getDay();
+  var daysSinceMonday = day === 0 ? 6 : day - 1;
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - daysSinceMonday);
+  return d;
+}
+
 function maxDateStr(a, b) {
   return a > b ? a : b;
 }
@@ -1259,6 +1281,8 @@ function renderCalendar() {
   var month = currentMonth.getMonth();
   var today = new Date();
   var todayStr = formatDate(today);
+  var currentWeekStartStr = formatDate(getWeekStart(today));
+  var currentWeekEndStr = formatDate(addDays(getWeekStart(today), 6));
 
   document.getElementById('calTitle').textContent = year + '\uB144 ' + (month + 1) + '\uC6D4';
 
@@ -1275,7 +1299,10 @@ function renderCalendar() {
     var prevDateObj = new Date(year, month - 1, prevD);
     var prevDateStr = formatDate(prevDateObj);
     var prevDayData = checkinData[prevDateStr] || {};
-    html += '<div class="cal-day other-month" data-date="' + prevDateStr + '">';
+    var prevCls = 'cal-day other-month';
+    if (prevDateStr < currentWeekStartStr) prevCls += ' past-week';
+    if (prevDateStr >= currentWeekStartStr && prevDateStr <= currentWeekEndStr) prevCls += ' current-week';
+    html += '<div class="' + prevCls + '" data-date="' + prevDateStr + '">';
     html += '<span class="day-num">' + prevD + '</span>' + renderCalendarMarks(prevDayData, prevDateStr) + '</div>';
   }
 
@@ -1292,6 +1319,8 @@ function renderCalendar() {
 
     var cls = 'cal-day';
     if (isToday) cls += ' today';
+    if (dateStr < currentWeekStartStr) cls += ' past-week';
+    if (dateStr >= currentWeekStartStr && dateStr <= currentWeekEndStr) cls += ' current-week';
     if (isFuture) cls += ' future';
     if (hasFutureTodo) cls += ' has-todo';
 
@@ -1315,6 +1344,8 @@ function renderCalendar() {
     var nextHasFutureTodo = nextIsFuture && hasTodoOnDate(nextDateStr);
     var nextCls = 'cal-day other-month';
     if (nextDateStr === todayStr) nextCls += ' today';
+    if (nextDateStr < currentWeekStartStr) nextCls += ' past-week';
+    if (nextDateStr >= currentWeekStartStr && nextDateStr <= currentWeekEndStr) nextCls += ' current-week';
     if (nextIsFuture) nextCls += ' future';
     if (nextHasFutureTodo) nextCls += ' has-todo';
     if (!nextIsFuture || nextHasFutureTodo) {
