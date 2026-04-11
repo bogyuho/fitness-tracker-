@@ -326,7 +326,7 @@
     }
 
     .mark-type {
-      width: 9px;
+      width: 16px;
       flex: 0 0 auto;
       color: rgba(255,255,255,0.58);
       font-size: 7px;
@@ -1228,8 +1228,8 @@ function renderCalendarMarks(dayData, dateStr) {
   var workout = dayData[TYPE_WORKOUT] || {};
   var morning = dayData[TYPE_MORNING] || {};
   var rows = ''
-    + renderMarkRow('\uC6B4', workout)
-    + renderMarkRow('\uC544', morning)
+    + renderMarkRow('\uC6B4\uB3D9', workout)
+    + renderMarkRow('\uC544\uCE68', morning)
     + renderTodoMarkRow(dateStr);
   return rows ? '<div class="marks">' + rows + '</div>' : '';
 }
