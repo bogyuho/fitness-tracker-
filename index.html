@@ -1104,15 +1104,13 @@ function renderCalendarMarks(dayData, dateStr) {
 }
 
 function renderTodoMarkRow(dateStr) {
-  if (!dateStr) {
-    return '<div class="mark-row todo-mark-row"><span class="mark-type">\u2705</span><span class="todo-empty">-</span></div>';
-  }
+  if (!dateStr) return '';
   var b = getTodoSummary(dateStr, '\uBCF4\uADDC');
   var h = getTodoSummary(dateStr, '\uD61C\uB9BC');
+  if (!b.total && !h.total) return '';
   var parts = ['<span class="mark-type">\u2705</span>'];
   if (b.total) parts.push('<span class="todo-count bogyu">\uBCF4 ' + b.done + '/' + b.total + '</span>');
   if (h.total) parts.push('<span class="todo-count hyerim">\uD61C ' + h.done + '/' + h.total + '</span>');
-  if (parts.length === 1) parts.push('<span class="todo-empty">-</span>');
   return '<div class="mark-row todo-mark-row">' + parts.join('') + '</div>';
 }
 
