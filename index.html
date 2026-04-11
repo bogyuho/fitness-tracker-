@@ -266,24 +266,24 @@
     .cal-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 7px;
+      gap: 5px;
     }
 
     .cal-day {
-      min-height: 82px;
+      min-height: 64px;
       min-width: 0;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: stretch;
       justify-content: flex-start;
-      border-radius: 16px;
+      border-radius: 13px;
       font-size: 14px;
       cursor: pointer;
       background: linear-gradient(180deg, rgba(255,255,255,0.085), rgba(255,255,255,0.035));
       border: 1px solid rgba(255,255,255,0.06);
       transition: transform 0.1s;
-      padding: 6px 4px 5px;
+      padding: 5px 3px 4px;
     }
 
     .cal-day:active { transform: scale(0.9); }
@@ -299,7 +299,7 @@
     .cal-day .day-num {
       font-size: 12px;
       line-height: 1;
-      margin-bottom: 5px;
+      margin-bottom: 3px;
       flex: 0 0 auto;
       text-align: left;
       color: var(--text);
@@ -309,9 +309,9 @@
     .cal-day .marks {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 2px;
       width: 100%;
-      font-size: 8px;
+      font-size: 7.6px;
       line-height: 1;
       overflow: hidden;
     }
@@ -320,13 +320,13 @@
       display: flex;
       align-items: center;
       justify-content: flex-start;
-      gap: 2px;
+      gap: 1px;
       white-space: nowrap;
     }
 
     .mark-type { opacity: 0.85; flex: 0 0 auto; }
     .mark-name {
-      min-width: 12px;
+      min-width: 11px;
       padding: 1px 2px;
       border-radius: 5px;
       background: rgba(255,255,255,0.06);
@@ -340,14 +340,14 @@
 
     .todo-mark-row {
       justify-content: flex-start;
-      gap: 3px;
-      font-size: 8px;
-      letter-spacing: -0.35px;
+      gap: 1px;
+      font-size: 7px;
+      letter-spacing: -0.55px;
     }
 
     .todo-mark-row.person {
-      gap: 2px;
-      font-size: 7.8px;
+      gap: 1px;
+      font-size: 7px;
     }
 
     .todo-mark-row .todo-empty { opacity: 0.25; }
@@ -355,8 +355,8 @@
       min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
-      border-radius: 6px;
-      padding: 2px 3px;
+      border-radius: 5px;
+      padding: 2px;
       font-weight: 800;
     }
     .todo-mark-row .todo-count.bogyu { color: #E0E7FF; background: rgba(99,102,241,0.28); }
@@ -1223,10 +1223,10 @@ function renderTodoMarkRow(dateStr) {
   if (!b.total && !h.total) return '';
   var html = '';
   if (b.total) {
-    html += '<div class="mark-row todo-mark-row person"><span class="mark-type">\uD83D\uDCCC</span><span class="todo-count bogyu">\uBCF4 ' + b.done + '/' + b.total + '</span></div>';
+    html += '<div class="mark-row todo-mark-row person"><span class="todo-count bogyu">B ' + b.done + '/' + b.total + '</span></div>';
   }
   if (h.total) {
-    html += '<div class="mark-row todo-mark-row person"><span class="mark-type">\uD83D\uDCCC</span><span class="todo-count hyerim">\uD61C ' + h.done + '/' + h.total + '</span></div>';
+    html += '<div class="mark-row todo-mark-row person"><span class="todo-count hyerim">H ' + h.done + '/' + h.total + '</span></div>';
   }
   return html;
 }
