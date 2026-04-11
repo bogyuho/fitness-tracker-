@@ -46,24 +46,31 @@
     }
 
     /* 오늘 인증 섹션 */
-    .checkin-section {
+    .checkin-list {
       margin: 0 var(--gap);
       display: flex;
+      flex-direction: column;
       gap: 12px;
     }
 
-    .checkin-label {
-      margin: 14px var(--gap) 8px;
-      color: var(--text2);
-      font-size: 13px;
+    .checkin-row {
+      display: grid;
+      grid-template-columns: 54px 1fr 1fr;
+      align-items: stretch;
+      gap: 10px;
+    }
+
+    .row-name {
+      display: flex;
+      align-items: center;
+      color: var(--text);
+      font-size: 15px;
       font-weight: 700;
-      letter-spacing: 0.3px;
     }
 
     .checkin-card {
-      flex: 1;
-      padding: 18px 14px;
-      border-radius: var(--radius);
+      padding: 14px 10px;
+      border-radius: 16px;
       text-align: center;
       cursor: pointer;
       border: none;
@@ -77,13 +84,13 @@
     .checkin-card.bogyu { background: linear-gradient(135deg, #6366F1, #4F46E5); }
     .checkin-card.hyerim { background: linear-gradient(135deg, #FB7185, #F43F5E); }
     .checkin-card .card-name {
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 700;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .checkin-card .card-status {
-      font-size: 13px;
+      font-size: 11px;
       opacity: 0.9;
     }
 
@@ -427,28 +434,29 @@
 <div class="header">💪 헬스 트래커</div>
 
 <!-- 오늘 인증 -->
-<div class="checkin-label">💪 운동 인증</div>
-<div class="checkin-section">
-  <button class="checkin-card bogyu" id="checkinBogyu">
-    <div class="card-name">보규</div>
-    <div class="card-status" id="statusBogyu">📸 인증하기</div>
-  </button>
-  <button class="checkin-card hyerim" id="checkinHyerim">
-    <div class="card-name">혜림</div>
-    <div class="card-status" id="statusHyerim">📸 인증하기</div>
-  </button>
-</div>
-
-<div class="checkin-label">🌞 아침 인증</div>
-<div class="checkin-section">
-  <button class="checkin-card morning bogyu" id="morningBogyu">
-    <div class="card-name">보규</div>
-    <div class="card-status" id="statusMorningBogyu">11시 전 · 야외 · 평일 4회</div>
-  </button>
-  <button class="checkin-card morning hyerim" id="morningHyerim">
-    <div class="card-name">혜림</div>
-    <div class="card-status" id="statusMorningHyerim">9시 전 · 사무실 · 평2+주2</div>
-  </button>
+<div class="checkin-list">
+  <div class="checkin-row">
+    <div class="row-name">보규</div>
+    <button class="checkin-card bogyu" id="checkinBogyu">
+      <div class="card-name">💪 운동</div>
+      <div class="card-status" id="statusBogyu">인증하기</div>
+    </button>
+    <button class="checkin-card bogyu" id="morningBogyu">
+      <div class="card-name">🌞 아침</div>
+      <div class="card-status" id="statusMorningBogyu">11시 전 · 야외</div>
+    </button>
+  </div>
+  <div class="checkin-row">
+    <div class="row-name">혜림</div>
+    <button class="checkin-card hyerim" id="checkinHyerim">
+      <div class="card-name">💪 운동</div>
+      <div class="card-status" id="statusHyerim">인증하기</div>
+    </button>
+    <button class="checkin-card hyerim" id="morningHyerim">
+      <div class="card-name">🌞 아침</div>
+      <div class="card-status" id="statusMorningHyerim">9시 전 · 사무실</div>
+    </button>
+  </div>
 </div>
 
 <div id="debugMsg"></div>
@@ -711,8 +719,8 @@ function updateMorningBtn(userName, btnId, statusId, morningData) {
   }
 
   status.textContent = userName === '\uBCF4\uADDC'
-    ? '11시 전 · 야외 · 평일 4회'
-    : '9시 전 · 사무실 · 평2+주2';
+    ? '11시 전 · 야외'
+    : '9시 전 · 사무실';
 }
 
 function getTypeData(dateStr, type) {
