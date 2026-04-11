@@ -218,6 +218,28 @@
       color: var(--yellow);
     }
 
+    .guide-card {
+      margin: 0 var(--gap);
+      padding: 16px var(--card-pad-x);
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius);
+    }
+
+    .guide-card h3 {
+      font-size: 13px;
+      color: var(--text2);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .guide-card p {
+      color: var(--text2);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
     /* 섹션 간격 */
     .section-gap { height: 12px; }
 
@@ -834,6 +856,13 @@
     <span class="amount" id="hyerimPenalty"></span>
   </div>
   <div class="penalty-total" id="penaltyTotal"></div>
+</div>
+
+<div class="section-gap"></div>
+
+<div class="guide-card">
+  <h3>📎 설명서</h3>
+  <p>혜림 아침 인증은 평일 2회 + 주말 2회 기준입니다. 주말 2회가 어려우면 평일 4회로 대체합니다.</p>
 </div>
 
 <!-- 인증 모달 -->
