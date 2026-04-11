@@ -375,6 +375,7 @@
     }
 
     .modal-overlay.active { display: flex; }
+    #todoCancelModal { z-index: 500; }
 
     .modal {
       background: var(--card);
@@ -2223,6 +2224,7 @@ window.addEventListener('DOMContentLoaded', function() {
     }
     var cancelBtn = e.target.closest('[data-cancel-todo-id]');
     if (cancelBtn) {
+      e.stopPropagation();
       cancelTodoItem(cancelBtn.dataset.cancelTodoId);
       return;
     }
@@ -2245,6 +2247,7 @@ window.addEventListener('DOMContentLoaded', function() {
   document.getElementById('photosGrid').addEventListener('click', function(e) {
     var cancelBtn = e.target.closest('[data-cancel-todo-id]');
     if (cancelBtn) {
+      e.stopPropagation();
       cancelTodoItem(cancelBtn.dataset.cancelTodoId);
     }
   });
