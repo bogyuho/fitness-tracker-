@@ -1480,7 +1480,7 @@ function renderTodoModal() {
       } else {
         html += '<button class="todo-proof-btn" data-todo-id="' + item.id + '">\uC0AC\uC9C4 \uC778\uC99D</button>';
         if (canCancelTodo(item)) {
-          html += '<button class="todo-cancel-btn" data-cancel-todo-id="' + item.id + '">5\uBD84 \uCDE8\uC18C</button>';
+          html += '<button class="todo-cancel-btn" data-cancel-todo-id="' + item.id + '">' + getTodoCancelLabel(item) + '</button>';
         }
       }
       html += '</div>';
@@ -1537,6 +1537,10 @@ function getTodoMetaText(item) {
   if (item.todo_date > formatDate(new Date())) return '\uC608\uC815 \u00B7 \uBBF8\uB798 \uCDE8\uC18C \uAC00\uB2A5';
   if (canCancelTodo(item)) return '5\uBD84 \uC774\uB0B4 \uC2E4\uC218 \uCDE8\uC18C \uAC00\uB2A5';
   return '\uBBF8\uC644\uB8CC';
+}
+
+function getTodoCancelLabel(item) {
+  return item.todo_date > formatDate(new Date()) ? '\uCDE8\uC18C' : '5\uBD84 \uCDE8\uC18C';
 }
 
 function findTodoItem(todoId) {
@@ -1879,7 +1883,7 @@ function renderDayTodoSection(dateStr) {
       html += '<span class="badge ' + cls + '">' + getTodoStateIcon(item) + ' ' + escapeHtml(item.title) + '</span>';
       html += '<span style="color:#999;font-size:12px">' + getTodoMetaText(item) + '</span>';
       if (canCancelTodo(item)) {
-        html += '<button class="todo-cancel-btn" data-cancel-todo-id="' + item.id + '">5\uBD84 \uCDE8\uC18C</button>';
+        html += '<button class="todo-cancel-btn" data-cancel-todo-id="' + item.id + '">' + getTodoCancelLabel(item) + '</button>';
       }
       html += '</div></div>';
     });
