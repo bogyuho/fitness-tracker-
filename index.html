@@ -270,7 +270,7 @@
     }
 
     .cal-day {
-      min-height: 66px;
+      min-height: 74px;
       min-width: 0;
       overflow: visible;
       display: flex;
@@ -327,6 +327,11 @@
       gap: 2px;
       font-size: 7.5px;
       letter-spacing: -0.4px;
+    }
+
+    .todo-mark-row.person {
+      gap: 1px;
+      font-size: 7px;
     }
 
     .todo-mark-row .todo-empty { opacity: 0.25; }
@@ -1067,6 +1072,7 @@ function getActiveTodos(dateStr, userName) {
 
 function canCancelTodo(item) {
   if (!item || item.proof_photo_url || item.cancelled_at) return false;
+  if (item.todo_date > formatDate(new Date())) return true;
   return (Date.now() - new Date(item.created_at).getTime()) <= 5 * 60 * 1000;
 }
 
@@ -1144,10 +1150,14 @@ function renderTodoMarkRow(dateStr) {
   var b = getTodoSummary(dateStr, '\uBCF4\uADDC');
   var h = getTodoSummary(dateStr, '\uD61C\uB9BC');
   if (!b.total && !h.total) return '';
-  var parts = ['<span class="mark-type">\u2705</span>'];
-  if (b.total) parts.push('<span class="todo-count bogyu">\uBCF4 ' + b.done + '/' + b.total + '</span>');
-  if (h.total) parts.push('<span class="todo-count hyerim">\uD61C ' + h.done + '/' + h.total + '</span>');
-  return '<div class="mark-row todo-mark-row">' + parts.join('') + '</div>';
+  var html = '';
+  if (b.total) {
+    html += '<div class="mark-row todo-mark-row person"><span class="mark-type">\u2705</span><span class="todo-count bogyu">\uBCF4 ' + b.done + '/' + b.total + '</span></div>';
+  }
+  if (h.total) {
+    html += '<div class="mark-row todo-mark-row person"><span class="mark-type">\u2705</span><span class="todo-count hyerim">\uD61C ' + h.done + '/' + h.total + '</span></div>';
+  }
+  return html;
 }
 
 function renderFutureTodoMarks(dateStr) {
@@ -1524,6 +1534,7 @@ function getTodoStateIcon(item) {
 function getTodoMetaText(item) {
   if (item.cancelled_at) return '\uCDE8\uC18C\uB428 \u00B7 \uBC8C\uAE08 \uC81C\uC678';
   if (item.proof_photo_url) return formatTodoTime(item.completed_at) + ' \uC778\uC99D';
+  if (item.todo_date > formatDate(new Date())) return '\uC608\uC815 \u00B7 \uBBF8\uB798 \uCDE8\uC18C \uAC00\uB2A5';
   if (canCancelTodo(item)) return '5\uBD84 \uC774\uB0B4 \uC2E4\uC218 \uCDE8\uC18C \uAC00\uB2A5';
   return '\uBBF8\uC644\uB8CC';
 }
@@ -1544,13 +1555,17 @@ function findTodoItem(todoId) {
 async function cancelTodoItem(todoId) {
   var item = findTodoItem(todoId);
   if (!item || !canCancelTodo(item)) return;
-  if (!confirm('\uC774 \uD22C\uB450\uB97C \uC2E4\uC218 \uCDE8\uC18C\uD560\uAE4C\uC694?')) return;
+  var isFuture = item.todo_date > formatDate(new Date());
+  var confirmText = isFuture
+    ? '\uBBF8\uB798 \uD22C\uB450\uB97C \uCDE8\uC18C\uD560\uAE4C\uC694?'
+    : '\uC774 \uD22C\uB450\uB97C \uC2E4\uC218 \uCDE8\uC18C\uD560\uAE4C\uC694?';
+  if (!confirm(confirmText)) return;
 
   var result = await supabaseClient
     .from('todo_items')
     .update({
       cancelled_at: new Date().toISOString(),
-      cancel_reason: 'mistake_within_5_minutes'
+      cancel_reason: isFuture ? 'future_cancel' : 'mistake_within_5_minutes'
     })
     .eq('id', item.id);
 
