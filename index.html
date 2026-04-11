@@ -737,7 +737,7 @@
     </button>
     <button class="checkin-card bogyu" id="todoBogyu">
       <div class="card-name">📋 To do 추가하기</div>
-      <div class="card-status" id="statusTodoBogyu">추가</div>
+      <div class="card-status" id="statusTodoBogyu"></div>
     </button>
   </div>
   <div class="checkin-row">
@@ -748,11 +748,11 @@
     </button>
     <button class="checkin-card hyerim" id="morningHyerim">
       <div class="card-name">🌞 아침</div>
-      <div class="card-status" id="statusMorningHyerim">9시 전 · 사무실<small>평2+주2 or 평4</small></div>
+      <div class="card-status" id="statusMorningHyerim">9시 전 · 사무실<small>평2+주2 · 평4 대체</small></div>
     </button>
     <button class="checkin-card hyerim" id="todoHyerim">
       <div class="card-name">📋 To do 추가하기</div>
-      <div class="card-status" id="statusTodoHyerim">추가</div>
+      <div class="card-status" id="statusTodoHyerim"></div>
     </button>
   </div>
 </div>
@@ -808,7 +808,7 @@
   </div>
   <div class="progress-person">
     <div class="label">
-      <span>혜림 (9시 전 사무실 · 평2+주2 or 평4)</span>
+      <span>혜림 (9시 전 사무실 · 평2+주2 · 평4 대체)</span>
       <span id="hyerimMorningWeekCount">평0/2 주0/2</span>
     </div>
     <div class="progress-bar"><div class="fill hyerim" id="hyerimMorningBar" style="width:0%"></div></div>
@@ -1120,7 +1120,7 @@ function updateMorningBtn(userName, btnId, statusId, morningData) {
     ? '11시 전 · 야외'
     : '';
   if (userName === '\uD61C\uB9BC') {
-    status.innerHTML = '9시 전 · 사무실<small>평2+주2 or 평4</small>';
+    status.innerHTML = '9시 전 · 사무실<small>평2+주2 · 평4 대체</small>';
   }
 }
 
