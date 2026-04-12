@@ -966,7 +966,7 @@
     </div>
     <div class="guide-item">
       <div class="guide-title">📸 사진/달력</div>
-      <div class="guide-text">사진에는 날짜, 시간, 대략 위치가 같이 찍힙니다.</div>
+      <div class="guide-text">사진에는 날짜와 시간이 같이 찍힙니다.</div>
       <div class="guide-note">달력 날짜를 누르면 그날 사진과 상태를 볼 수 있습니다.</div>
     </div>
     <div class="guide-item">
@@ -2276,50 +2276,7 @@ async function buildWatermarkLines() {
     hour: '2-digit',
     minute: '2-digit'
   });
-  var locationText = await getLocationText();
-  return [timeText, locationText];
-}
-
-function getLocationText() {
-  if (!navigator.geolocation) {
-    return Promise.resolve('\uC704\uCE58 \uBBF8\uC9C0\uC6D0');
-  }
-  return requestLocation({
-    enableHighAccuracy: false,
-    timeout: 12000,
-    maximumAge: 300000
-  }).catch(function(firstErr) {
-    return requestLocation({
-      enableHighAccuracy: true,
-      timeout: 18000,
-      maximumAge: 600000
-    }).catch(function(secondErr) {
-      return Promise.reject(secondErr || firstErr);
-    });
-  }).then(formatLocationText).catch(function(err) {
-    return '\uC704\uCE58 \uBBF8\uD655\uC778(' + getLocationErrorText(err) + ')';
-  });
-}
-
-function requestLocation(options) {
-  return new Promise(function(resolve, reject) {
-    navigator.geolocation.getCurrentPosition(function(pos) {
-      resolve(pos);
-    }, reject, options);
-  });
-}
-
-function formatLocationText(pos) {
-  var c = pos.coords;
-  return '\uB300\uB7B5 \uC704\uCE58 ' + c.latitude.toFixed(2) + ', ' + c.longitude.toFixed(2) + ' \uBD80\uADFC \u00B7 \u00B1' + Math.round(c.accuracy) + 'm';
-}
-
-function getLocationErrorText(err) {
-  if (!err) return '\uC624\uB958';
-  if (err.code === 1) return '\uAD8C\uD55C\uAC70\uBD80';
-  if (err.code === 2) return '\uC704\uCE58\uC0AC\uC6A9\uBD88\uAC00';
-  if (err.code === 3) return '\uC2DC\uAC04\uCD08\uACFC';
-  return '\uC624\uB958';
+  return [timeText];
 }
 
 function drawWatermark(ctx, width, height, lines) {
