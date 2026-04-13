@@ -505,6 +505,27 @@
 
     .photo-upload-area p { color: var(--text2); font-size: 14px; }
 
+    .photo-source-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .photo-source-actions button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 10px;
+      color: white;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .photo-source-actions .camera { background: linear-gradient(135deg, #F59E0B, #EA580C); }
+    .photo-source-actions .gallery { background: linear-gradient(135deg, #6366F1, #4F46E5); }
+
     .modal-btns { display: flex; gap: 10px; }
 
     .modal-btns button {
@@ -1984,11 +2005,19 @@ function openTodoProofModal(todoId) {
   selectedFile = null;
   var photoInput = document.getElementById('photoInput');
   photoInput.value = '';
-  document.getElementById('uploadArea').innerHTML = '<p>\uD83D\uDCF7 \uD22C\uB450 \uC778\uC99D \uC0AC\uC9C4\uC744 \uC120\uD0DD\uD558\uC138\uC694</p>';
+  document.getElementById('uploadArea').innerHTML = renderPhotoSourcePicker('\uD83D\uDCF7 \uD22C\uB450 \uC778\uC99D \uC0AC\uC9C4\uC744 \uC120\uD0DD\uD558\uC138\uC694');
   document.getElementById('submitBtn').disabled = true;
   document.getElementById('submitBtn').textContent = '\uC778\uC99D\uD558\uAE30';
   document.getElementById('checkinTitle').textContent = '\uD83D\uDCF8 ' + currentUser + ' \uD22C\uB450 \uC778\uC99D';
   document.getElementById('checkinModal').classList.add('active');
+}
+
+function renderPhotoSourcePicker(message) {
+  return '<p>' + message + '</p>'
+    + '<div class="photo-source-actions">'
+    + '<button type="button" class="camera" data-photo-source="camera">\uCE74\uBA54\uB77C \uCD2C\uC601</button>'
+    + '<button type="button" class="gallery" data-photo-source="gallery">\uC568\uBC94 \uC120\uD0DD</button>'
+    + '</div>';
 }
 
 async function submitTodoProof() {
@@ -2032,7 +2061,7 @@ function openCheckinModal(userName, checkinType) {
   selectedFile = null;
   var photoInput = document.getElementById('photoInput');
   photoInput.value = '';
-  document.getElementById('uploadArea').innerHTML = '<p>\uD83D\uDCF7 \uC0AC\uC9C4\uC744 \uCCA8\uBD80\uD558\uAC70\uB098 \uC120\uD0DD\uD558\uC138\uC694</p>';
+  document.getElementById('uploadArea').innerHTML = renderPhotoSourcePicker('\uD83D\uDCF7 \uC0AC\uC9C4\uC744 \uCCA8\uBD80\uD558\uAC70\uB098 \uC120\uD0DD\uD558\uC138\uC694');
   document.getElementById('submitBtn').disabled = true;
   document.getElementById('submitBtn').textContent = '\uC778\uC99D\uD558\uAE30';
   var typeLabel = currentCheckinType === TYPE_MORNING ? '아침 인증' : '운동 인증';
@@ -2388,8 +2417,17 @@ window.addEventListener('DOMContentLoaded', function() {
       window.open(photoBtn.dataset.photo, '_blank');
     }
   });
-  document.getElementById('uploadArea').addEventListener('click', function() {
-    document.getElementById('photoInput').click();
+  document.getElementById('uploadArea').addEventListener('click', function(e) {
+    var sourceBtn = e.target.closest('[data-photo-source]');
+    if (!sourceBtn) return;
+    var photoInput = document.getElementById('photoInput');
+    photoInput.value = '';
+    if (sourceBtn.dataset.photoSource === 'camera') {
+      photoInput.setAttribute('capture', 'environment');
+    } else {
+      photoInput.removeAttribute('capture');
+    }
+    photoInput.click();
   });
   document.getElementById('photoInput').addEventListener('change', function() {
     previewPhoto(this);
