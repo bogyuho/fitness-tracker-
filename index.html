@@ -1257,15 +1257,26 @@ function updateCheckinBtns() {
 
   updateMorningBtn('\uBCF4\uADDC', 'morningBogyu', 'statusMorningBogyu', morningData);
   updateMorningBtn('\uD61C\uB9BC', 'morningHyerim', 'statusMorningHyerim', morningData);
-  updateTodoBtn('\uBCF4\uADDC', 'statusTodoBogyu', todayStr);
-  updateTodoBtn('\uD61C\uB9BC', 'statusTodoHyerim', todayStr);
+  updateTodoBtn('\uBCF4\uADDC', 'todoBogyu', 'statusTodoBogyu', todayStr);
+  updateTodoBtn('\uD61C\uB9BC', 'todoHyerim', 'statusTodoHyerim', todayStr);
 }
 
-function updateTodoBtn(userName, statusId, dateStr) {
+function updateTodoBtn(userName, btnId, statusId, dateStr) {
   var summary = getTodoSummary(dateStr, userName);
+  var btn = document.getElementById(btnId);
   var status = document.getElementById(statusId);
-  if (!status) return;
-  status.textContent = summary.total ? '\uC624\uB298 ' + summary.done + '/' + summary.total : '';
+  if (!btn || !status) return;
+  btn.classList.remove('done');
+  if (!summary.total) {
+    status.textContent = '';
+    return;
+  }
+  if (summary.done === summary.total) {
+    status.textContent = '\u2705 \uC644\uB8CC';
+    btn.classList.add('done');
+    return;
+  }
+  status.textContent = '\uC624\uB298 ' + summary.done + '/' + summary.total;
 }
 
 function updateMorningBtn(userName, btnId, statusId, morningData) {
